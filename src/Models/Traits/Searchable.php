@@ -2,6 +2,7 @@
 
 namespace D3jn\Larelastic\Models\Traits;
 
+use Illuminate\Support\Facades\App;
 use D3jn\Larelastic\Models\Observers\SearchableObserver;
 use Illuminate\Support\Facades\DB;
 
@@ -17,6 +18,13 @@ trait Searchable
      * @var array
      */
     protected $elasticData = null;
+
+    /**
+     * Default refresh value.
+     *
+     * @var mixed
+     */
+    protected $defaultElasticRefresh = false;
 
     /**
      * Attach our observer to searchable entities using this trait.
@@ -222,7 +230,74 @@ trait Searchable
         }
 
         return isset($this->elasticData['highlight'][$field])
-            ? collect($this->elasticData['highlight'][$field]) 
+            ? collect($this->elasticData['highlight'][$field])
             : collect();
+    }
+
+    /**
+     * Get refresh option value for sync queries.
+     *
+     * @param string $action
+     *
+     * @return mixed
+     */
+    public function getRefreshState()
+    {
+        if (App::environment('testing')) {
+            return true;
+        }
+
+        if (property_exists($this, 'elasticsearchRefresh')) {
+            return $this->elasticsearchRefresh;
+        }
+
+        return $this->defaultRefreshElastic;
+    }
+
+    /**
+     * Get refresh option value for sync queries.
+     *
+     * @param mixed $refresh
+     *
+     * @return void
+     */
+    public function setRefreshState($refresh): void
+    {
+        if (property_exists($this, 'elasticsearchRefresh')) {
+            $this->elasticsearchRefresh = $refresh;
+        }
+
+        $this->defaultRefreshElastic = $refresh;
+    }
+
+    /**
+     * Sync model to elastic.
+     *
+     * @return void
+     */
+    public function updateInElastic(): void
+    {
+        app('Elasticsearch\Client')->index([
+            'index' => $this->getSearchIndex(),
+            'type' => $this->getSearchType(),
+            'id' => $this->id,
+            'body' => $this->getSearchAttributes(),
+            'refresh' => $this->getRefreshState()
+        ]);
+    }
+
+    /**
+     * Remove model from elastic.
+     *
+     * @return void
+     */
+    public function deleteFromElastic(): void
+    {
+        app('Elasticsearch\Client')->delete([
+            'index' => $this->getSearchIndex(),
+            'type' => $this->getSearchType(),
+            'id' => $this->id,
+            'refresh' => $this->getRefreshState()
+        ]);
     }
 }

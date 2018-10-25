@@ -32,13 +32,7 @@ class SearchableObserver
      */
     public function saved(Searchable $entity): void
     {
-        $this->client->index([
-            'index' => $entity->getSearchIndex(),
-            'type' => $entity->getSearchType(),
-            'id' => $entity->id,
-            'body' => $entity->getSearchAttributes(),
-            'refresh' => App::environment('testing')
-        ]);
+        $entity->updateInElastic();
     }
 
     /**
@@ -50,11 +44,6 @@ class SearchableObserver
      */
     public function deleted(Searchable $entity): void
     {
-        $this->client->delete([
-            'index' => $entity->getSearchIndex(),
-            'type' => $entity->getSearchType(),
-            'id' => $entity->id,
-            'refresh' => App::environment('testing')
-        ]);
+        $entity->deleteFromElastic();
     }
 }

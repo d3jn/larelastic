@@ -118,4 +118,34 @@ interface Searchable
      * @return int
      */
     public function getPerPage();
+
+    /**
+     * Get refresh option value for sync queries.
+     *
+     * @return mixed
+     */
+    public function getRefreshState();
+
+    /**
+     * Set refresh option value for sync queries.
+     *
+     * @param mixed $refresh
+     *
+     * @return void
+     */
+    public function setRefreshState($refresh): void;
+
+    /**
+     * Sync model to elastic.
+     *
+     * @return void
+     */
+    public function updateInElastic(): void;
+
+    /**
+     * Remove model from elastic.
+     *
+     * @return void
+     */
+    public function deleteFromElastic(): void;
 }
