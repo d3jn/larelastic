@@ -251,7 +251,7 @@ trait Searchable
             return $this->elasticsearchRefresh;
         }
 
-        return $this->defaultRefreshElastic;
+        return $this->defaultElasticRefresh;
     }
 
     /**
@@ -267,7 +267,7 @@ trait Searchable
             $this->elasticsearchRefresh = $refresh;
         }
 
-        $this->defaultRefreshElastic = $refresh;
+        $this->defaultElasticRefresh = $refresh;
     }
 
     /**
