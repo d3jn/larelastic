@@ -2,16 +2,19 @@
 
 namespace D3jn\Larelastic\Query;
 
-use D3jn\Larelastic\Query\Traits\HasQueryHelpers;
+use Closure;
 use D3jn\Larelastic\Contracts\Models\Searchable;
+use D3jn\Larelastic\Exceptions\LarelasticException;
+use D3jn\Larelastic\Query\Traits\HasDslHelpers;
+use D3jn\Larelastic\Query\Traits\HasQueryHelpers;
+use Elasticsearch\Client;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
-use Elasticsearch\Client;
-use Closure;
+use Illuminate\Support\Facades\App;
 
 class Builder
 {
-    use HasQueryHelpers;
+    use HasQueryHelpers, HasDslHelpers;
 
     /**
      * Searchable source for type.
@@ -221,7 +224,7 @@ class Builder
      */
     public function highlightRaw(array $params): Builder
     {
-        $this->highlight = array_merge($this->highlight, $fields);
+        $this->highlight = array_merge($this->highlight()->getRaw(), $params);
 
         return $this;
     }
@@ -309,7 +312,7 @@ class Builder
             return $searchable;
         } catch (\Elasticsearch\Common\Exceptions\Missing404Exception $e) {
             return null;
-        } catch (Exception $e) {
+        } catch (LarelasticException $e) {
             if (App::environment('production')) {
                 report($e);
 
@@ -333,7 +336,7 @@ class Builder
         $this->injectSortParameters($params);
         $this->injectPaginationParameters($params);
         $this->injectHighlightParameters($params);
-        
+
         return $this->client->search($params);
     }
 
@@ -379,7 +382,7 @@ class Builder
         ];
 
         $total = $this->count();
-        $items = $total > 0 
+        $items = $total > 0
             ? $this->offset(($currentPage - 1) * $perPage)->limit($perPage)->get()
             : collect();
 
@@ -428,6 +431,8 @@ class Builder
             }
 
             $params['body']['query'] = $bool;
+        } elseif ($this->dsl !== null) {
+            $params['body']['query'] = $this->dsl->toArray();
         } else {
             $params['body']['query'] = $this->queryRaw;
         }
@@ -476,7 +481,7 @@ class Builder
     {
         if ($this->highlightRaw !== null) {
             $params['body']['highlight'] = $this->highlightRaw;
-        } else if ($this->highlight !== null) {
+        } elseif ($this->highlight !== null) {
             $raw = $this->highlight->getRaw();
 
             if (! empty($raw)) {
