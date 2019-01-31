@@ -1,6 +1,6 @@
 <?php
 
-namespace D3jn\Larelastic\Query\Traits;
+namespace D3jn\Larelastic\Query\Concerns;
 
 use D3jn\Larelastic\Query\Dsl;
 
@@ -16,9 +16,9 @@ trait HasDslHelpers
     /**
      * Begin DSL query generation.
      *
-     * @return mixed
+     * @return \D3jn\Larelastic\Query\Dsl
      */
-    public function query()
+    public function dsl()
     {
         $this->dsl = new Dsl($this, null);
 

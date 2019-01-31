@@ -30,8 +30,7 @@ class IndexCommand extends Command
     /**
      * Drop existing indices.
      *
-     * @param array $indices
-     *
+     * @param  array $indices
      * @return void
      */
     protected function deleteExistingIndices(array $indices): void
@@ -52,8 +51,7 @@ class IndexCommand extends Command
     /**
      * Create new indices, drop existing ones.
      *
-     * @param array $indices
-     *
+     * @param  array $indices
      * @return void
      */
     protected function createNewIndices(array $indices): void
@@ -72,8 +70,7 @@ class IndexCommand extends Command
     /**
      * Import type entities. Return number of imported records.
      *
-     * @param array $typeEntities
-     *
+     * @param  array $typeEntities
      * @return int
      */
     protected function importTypeEntities(array $typeEntities): int

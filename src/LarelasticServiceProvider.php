@@ -13,8 +13,7 @@ class LarelasticServiceProvider extends ServiceProvider implements IndexResolver
     /**
      * Get index name for specified type.
      *
-     * @param string $type
-     *
+     * @param  string $type
      * @return string
      */
     public function resolveIndexForType($type): string
@@ -61,7 +60,7 @@ class LarelasticServiceProvider extends ServiceProvider implements IndexResolver
                 ->setHosts(config('larelastic.hosts'))
                 ->build();
         });
-        
+
         $this->app->singleton('D3jn\Larelastic\Contracts\IndexResolver', function () {
             return $this;
         });

@@ -12,28 +12,28 @@ interface Searchable
      * @return string
      */
     public function getSearchIndex(): string;
-    
+
     /**
      * Return index name for this searchable entity.
      *
      * @return string
      */
     public function getSearchType(): string;
-    
+
     /**
      * Return primary key for searchable entity.
      *
      * @return string
      */
     public function getSearchKey(): string;
-    
+
     /**
      * Get searchable field values for this entity.
      *
      * @return array
      */
     public function getSearchAttributes(): array;
-    
+
     /**
      * Get mapping for this searchable entity. Returns empty array if no mapping
      * should be specified for the type in elasticsearch index.
@@ -54,7 +54,7 @@ interface Searchable
      *
      * @param Callable $callback
      */
-    public function walkSearchableEntities(Callable $callback);
+    public function walkSearchableEntities(callable $callback);
 
     /**
      * Get primary value from elasticsearch attributes of this instance.
@@ -66,8 +66,7 @@ interface Searchable
     /**
      * Get searchable instance by specified id or null if not found.
      *
-     * @param mixed $id
-     *
+     * @param  mixed $id
      * @return \D3jn\Larelastic\Contracts\Models\Searchable|null
      */
     public function getByID($id): ?Searchable;
@@ -75,9 +74,8 @@ interface Searchable
     /**
      * Get collection searchable instances by specified ids.
      *
-     * @param array $ids
-     * @param array $relations
-     *
+     * @param  array $ids
+     * @param  array $relations
      * @return \Illuminate\Support\Collection
      */
     public function getByIDs(array $ids, array $relations = []): \Illuminate\Support\Collection;
@@ -87,7 +85,7 @@ interface Searchable
      *
      * @return void
      */
-    public function setElasticData(array $attributes);
+    public function setElasticData(array $attributes): void;
 
     /**
      * Get attribute values from elasticsearch version of this instance.
@@ -106,8 +104,7 @@ interface Searchable
      * If $field is not specified then array of all existing highlighted
      * matches will be returned.
      *
-     * @param string|null $field
-     *
+     * @param  string|null $field
      * @return mixed
      */
     public function getHighlight(?string $field);
@@ -129,8 +126,7 @@ interface Searchable
     /**
      * Set refresh option value for sync queries.
      *
-     * @param mixed $refresh
-     *
+     * @param  mixed $refresh
      * @return void
      */
     public function setRefreshState($refresh): void;

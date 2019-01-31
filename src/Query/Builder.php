@@ -6,7 +6,6 @@ use Closure;
 use D3jn\Larelastic\Contracts\Models\Searchable;
 use D3jn\Larelastic\Exceptions\LarelasticException;
 use D3jn\Larelastic\Query\Traits\HasDslHelpers;
-use D3jn\Larelastic\Query\Traits\HasQueryHelpers;
 use Elasticsearch\Client;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
@@ -14,7 +13,7 @@ use Illuminate\Support\Facades\App;
 
 class Builder
 {
-    use HasQueryHelpers, HasDslHelpers;
+    use HasDslHelpers;
 
     /**
      * Searchable source for type.
@@ -59,13 +58,6 @@ class Builder
     protected $orderBy = [];
 
     /**
-     * Highlight object for constructing highlight parameters.
-     *
-     * @var \D3jn\Larelastic\Query\Highlight|null
-     */
-    protected $highlight = null;
-
-    /**
      * Raw highlight array parameters.
      *
      * @var array|null
@@ -107,8 +99,7 @@ class Builder
      * Note that some of those fields will be overriden if also featured in
      * query object via other (more specific) methods.
      *
-     * @param array $params
-     *
+     * @param  array $params
      * @return $this
      */
     public function requestRaw(array $params): Builder
@@ -121,8 +112,7 @@ class Builder
     /**
      * Set query parameters for request by raw array of parameters.
      *
-     * @param array $query
-     *
+     * @param  array $query
      * @return $this
      */
     public function queryRaw(array $query): Builder
@@ -135,8 +125,7 @@ class Builder
     /**
      * Limit results count.
      *
-     * @param int limit
-     *
+     * @param  int limit
      * @return $this
      */
     public function limit(int $limit): Builder
@@ -164,8 +153,7 @@ class Builder
     /**
      * Offset results.
      *
-     * @param int offset
-     *
+     * @param  int offset
      * @return $this
      */
     public function offset(int $offset): Builder
@@ -191,14 +179,13 @@ class Builder
     }
 
     /**
-     * Specify order for query.
+     * Add order for query.
      *
-     * @param string $field
-     * @param string $rule
-     *
+     * @param  string $field
+     * @param  string $rule
      * @return $this
      */
-    public function orderBy(string $field, string $rule = 'desc'): Builder
+    public function addOrderBy(string $field, string $rule = 'desc'): Builder
     {
         $this->orderBy[] = [$field => $rule];
 
@@ -218,44 +205,20 @@ class Builder
     /**
      * Highlight specified fields in the request by raw array of parameters.
      *
-     * @param array $params
-     *
+     * @param  array $params
      * @return $this
      */
     public function highlightRaw(array $params): Builder
     {
-        $this->highlight = array_merge($this->highlight()->getRaw(), $params);
+        $this->highlightRaw = $params;
 
         return $this;
     }
 
     /**
-     * Getter for highlight.
-     *
-     * @param \Closure|null $closure
-     *
-     * @return $this|\D3jn\Larelastic\Query\Highlight
-     */
-    public function highlight(?Closure $closure = null)
-    {
-        if ($this->highlight === null) {
-            $this->highlight = app()->make(Highlight::class);
-        }
-
-        if ($closure !== null) {
-            $closure($this->highlight);
-
-            return $this;
-        }
-
-        return $this->highlight;
-    }
-
-    /**
      * Set the relationships that should be eager loaded.
      *
-     * @param string ...$relations
-     *
+     * @param  string ...$relations
      * @return $this
      */
     public function with(string ...$relations)
@@ -386,9 +349,7 @@ class Builder
             ? $this->offset(($currentPage - 1) * $perPage)->limit($perPage)->get()
             : collect();
 
-        return app()->makeWith(LengthAwarePaginator::class, compact(
-            'items', 'total', 'perPage', 'currentPage', 'options'
-        ));
+        return new LengthAwarePaginator($items, $total, $perPage, $currentPage, $options);
     }
 
     /**
@@ -407,31 +368,18 @@ class Builder
 
         $result = $this->client->search($params);
 
-        return $result['hits']['total'];
+        return (int) $result['hits']['total'];
     }
 
     /**
      * Inject query builder query parameters to request params array.
      *
-     * @param array &$params
-     *
+     * @param  array &$params
      * @return void
      */
     protected function injectQueryParameters(array &$params)
     {
-        if ($this->query !== null) {
-            $bool = $this->query->toArray();
-
-            // Null-value indicates that query is not complete and
-            // should not be included.
-            if ($bool === null) {
-                $params['body'] = [];
-
-                return;
-            }
-
-            $params['body']['query'] = $bool;
-        } elseif ($this->dsl !== null) {
+        if ($this->dsl !== null) {
             $params['body']['query'] = $this->dsl->toArray();
         } else {
             $params['body']['query'] = $this->queryRaw;
@@ -455,8 +403,7 @@ class Builder
     /**
      * Inject limit/offset query builder parameters to request params array.
      *
-     * @param array &$params
-     *
+     * @param  array &$params
      * @return void
      */
     protected function injectPaginationParameters(array &$params)
@@ -473,20 +420,13 @@ class Builder
     /**
      * Inject highlight query builder parameters to request params array.
      *
-     * @param array &$params
-     *
+     * @param  array &$params
      * @return void
      */
     protected function injectHighlightParameters(array &$params)
     {
         if ($this->highlightRaw !== null) {
             $params['body']['highlight'] = $this->highlightRaw;
-        } elseif ($this->highlight !== null) {
-            $raw = $this->highlight->getRaw();
-
-            if (! empty($raw)) {
-                $params['body']['highlight'] = $this->highlight->getRaw();
-            }
         }
     }
 

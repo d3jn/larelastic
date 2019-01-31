@@ -23,13 +23,9 @@ class Larelastic
     /**
      * Try resolving unexistant method as new query object or type.
      *
-     * @param string $name
-     * @param array $arguments
-     *
+     * @param  string $name
+     * @param  array $arguments
      * @return mixed
-     *
-     * @throws \D3jn\Larelastic\Exceptions\UnsupportedTypeException
-     * @throws \D3jn\Larelastic\Exceptions\UnknownTypeException
      */
     public function __call(string $name, array $arguments)
     {
