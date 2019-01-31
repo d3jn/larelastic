@@ -2,8 +2,6 @@
 
 namespace D3jn\Larelastic\Contracts\Models;
 
-use D3jn\Larelastic\Contracts\Models\Searchable;
-
 interface Searchable
 {
     /**

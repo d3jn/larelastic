@@ -2,7 +2,6 @@
 
 namespace D3jn\Larelastic\Query;
 
-use Closure;
 use D3jn\Larelastic\Contracts\Models\Searchable;
 use D3jn\Larelastic\Exceptions\LarelasticException;
 use D3jn\Larelastic\Query\Traits\HasDslHelpers;

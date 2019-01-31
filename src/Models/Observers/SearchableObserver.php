@@ -3,7 +3,6 @@
 namespace D3jn\Larelastic\Models\Observers;
 
 use D3jn\Larelastic\Contracts\Models\Searchable;
-use Illuminate\Support\Facades\App;
 use Elasticsearch\Client;
 
 class SearchableObserver
