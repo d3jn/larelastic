@@ -41,13 +41,6 @@ interface Searchable
     public function getTypeMapping(): array;
 
     /**
-     * Get all searchable entities query.
-     *
-     * @return mixed
-     */
-    public function getSearchableEntitiesQuery(): \Illuminate\Database\Eloquent\Builder;
-
-    /**
      * Pass through all searchable entities of this type with a given callback.
      *
      * @param Callable $callback

@@ -2,7 +2,7 @@
 
 namespace D3jn\Larelastic\Query;
 
-use D3jn\Elastic\Dsl\Clause;
+use D3jn\Larelastic\Query\Clause;
 use D3jn\Larelastic\Contracts\Models\Searchable;
 use Illuminate\Pagination\LengthAwarePaginator;
 

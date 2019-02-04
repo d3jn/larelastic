@@ -1,6 +1,6 @@
 # Larelastic
 
-Another take on integrating Elasticsearch into Laravel.
+Yet another take on integrating Elasticsearch into Laravel.
 
 ## Getting Started
 
@@ -146,43 +146,25 @@ Here `posts` is the type of our `App\Post` model (for Eloquent implementation of
 
 The most important part is methods like `get()` will return you hydrated collection of **Eloquent objects**! Each of them will have attached Elasticsearch data response too that you can access via `getElasticData()` method. Method `find()` return you one Eloquent object or null (if not found) and even `paginate()` method is implemented and works exactly the same!
 
-You can construct your query using chain calling starting with `bool()` method first, for example:
+You can construct your query using in-built chain calling starting with `query()` method first, for example:
 
 ```php
-$query = Larelastic::posts()
-    ->bool()
-    ->filter()
-    ->must(
-        Larelastic::query()->range('created_at')->lte(time())
-    );
+$query = Larelastic::posts()->query()
+    ->multimatch
+        ->query('test post')
+        ->fields(['title^3', 'content'])
+    ->end()
+    ->get();
 ```
 
-Here we are creating and passing query `RangeQuery` object into `must` clause via `query()` helper method. But you can also import and construct supported objects manually:
+Accessing query property will create new object for your query, calling methods will allow you to assign values to specific keys (if arguments are specified) or retrieve existing ones (if calling without any parameters). Call `end()` method to move up in the hierarchy.
 
-```php
-use D3jn\Larelastic\Query\Fulltext\MatchPhrasePrefixQuery;
-use D3jn\Larelastic\Query\Fulltext\MatchPhraseQuery;
-use D3jn\Larelastic\Query\Fulltext\MatchQuery;
-use D3jn\Larelastic\Query\Fulltext\MultiMatchQuery;
-use D3jn\Larelastic\Query\Term\RangeQuery;
-use D3jn\Larelastic\Query\Term\TermQuery;
-use D3jn\Larelastic\Query\Term\TermsQuery;
-
-...
-
-$query->bool()->should(
-    new MultiMatchQuery(['title^5', 'content'], 'foo')
-);
-```
-
-> Explore package classes to look for all supported features (such as highlighting, raw requests and so on). All classes and methods are well documented to provide easy understanding of their signatures and usage.
-
-If options provided by builder interface are not enough then you can always use it's `requestRaw()` and `queryRaw()` to set arrays of raw data for your Elasticsearch requests and `raw()` method to get untouched array result from it.
+If options provided by builder interface does not suit your taste you can always use it's `requestRaw()` and `queryRaw()` methods to set arrays of raw data for your Elasticsearch requests and `raw()` method to get raw array result from Elasticsearch.
 
 ## Built With
 
 * [Laravel](http://laravel.com) - The web framework used
-* [Elasticsearch PHP API](www.dropwizard.io/1.0.2/docs/) - Library for elasticsearch integration
+* [Elasticsearch PHP API](https://www.elastic.co/guide/en/elasticsearch/client/php-api/current/index.html) - Library for elasticsearch PHP integration
 
 ## Authors
 
@@ -194,4 +176,4 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Acknowledgments
 
-* [Tony Messias](https://twitter.com/tony0x01) for part of the original concept that can be found [here](https://blog.madewithlove.be/post/how-to-integrate-your-laravel-app-with-elasticsearch/)
+* [Tony Messias](https://twitter.com/tony0x01) for the original concept that can be found [here](https://blog.madewithlove.be/post/how-to-integrate-your-laravel-app-with-elasticsearch/)

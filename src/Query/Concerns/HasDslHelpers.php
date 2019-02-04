@@ -18,7 +18,7 @@ trait HasDslHelpers
      *
      * @return \D3jn\Larelastic\Query\Dsl
      */
-    public function dsl()
+    public function query()
     {
         $this->dsl = new Dsl($this, null);
 

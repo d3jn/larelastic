@@ -96,14 +96,14 @@ class Builder
      * Set request raw parameters for entire query.
      *
      * Note that some of those fields will be overriden if also featured in
-     * query object via other (more specific) methods.
+     * query object via other (i.e., DSL) methods.
      *
-     * @param  array $params
+     * @param  array $request
      * @return $this
      */
-    public function requestRaw(array $params): Builder
+    public function requestRaw(array $request): Builder
     {
-        $this->requestRaw = $params;
+        $this->requestRaw = $request;
 
         return $this;
     }
