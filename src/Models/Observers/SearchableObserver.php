@@ -25,7 +25,7 @@ class SearchableObserver
     /**
      * Update passed entity when save event is triggered.
      *
-     * @param  \D3jn\Larelastic\Contracts\Models\Searchable $entity
+     * @param \D3jn\Larelastic\Contracts\Models\Searchable $entity
      * @return void
      */
     public function saved(Searchable $entity): void
@@ -36,7 +36,7 @@ class SearchableObserver
     /**
      * Delete passed entity when delete event is triggered.
      *
-     * @param  \D3jn\Larelastic\Contracts\Models\Searchable $entity
+     * @param \D3jn\Larelastic\Contracts\Models\Searchable $entity
      * @return void
      */
     public function deleted(Searchable $entity): void

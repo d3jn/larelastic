@@ -2,7 +2,6 @@
 
 namespace D3jn\Larelastic\Query;
 
-use D3jn\Larelastic\Query\Clause;
 use D3jn\Larelastic\Contracts\Models\Searchable;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -18,8 +17,8 @@ class Dsl extends Clause
     /**
      * Parameter constructor.
      *
-     * @param  \D3jn\Larelastic\Query\Builder $builder
-     * @param  \D3jn\Elastic\Dsl\Clause|null  $parent
+     * @param \D3jn\Larelastic\Query\Builder $builder
+     * @param \D3jn\Elastic\Dsl\Clause|null  $parent
      * @return mixed
      */
     public function __construct(Builder $builder, ?Clause $parent = null)
@@ -32,7 +31,7 @@ class Dsl extends Clause
     /**
      * Handle dynamic property calls.
      *
-     * @param  string $name
+     * @param string $name
      * @return \D3jn\Larelastic\Query\Dsl
      */
     public function __get(string $name)
@@ -47,7 +46,7 @@ class Dsl extends Clause
     /**
      * Get searchable instance by specified id or null if not found.
      *
-     * @param  string $id
+     * @param string $id
      * @return \D3jn\Larelastic\Contracts\Models\Searchable|null
      */
     public function find(string $id): ?Searchable

@@ -23,8 +23,8 @@ class Larelastic
     /**
      * Try resolving unexistant method as new query object or type.
      *
-     * @param  string $name
-     * @param  array $arguments
+     * @param string $name
+     * @param array  $arguments
      * @return mixed
      */
     public function __call(string $name, array $arguments)

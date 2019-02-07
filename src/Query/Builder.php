@@ -81,7 +81,7 @@ class Builder
      * Builder constructor.
      *
      * @param \D3jn\Larelastic\Contracts\Models\Searchable $source
-     * @param \Elasticsearch\Client $client
+     * @param \Elasticsearch\Client                        $client
      */
     public function __construct(Searchable $source, Client $client)
     {
@@ -98,7 +98,7 @@ class Builder
      * Note that some of those fields will be overriden if also featured in
      * query object via other (i.e., DSL) methods.
      *
-     * @param  array $request
+     * @param array $request
      * @return $this
      */
     public function requestRaw(array $request): Builder
@@ -111,7 +111,7 @@ class Builder
     /**
      * Set query parameters for request by raw array of parameters.
      *
-     * @param  array $query
+     * @param array $query
      * @return $this
      */
     public function queryRaw(array $query): Builder
@@ -180,8 +180,8 @@ class Builder
     /**
      * Add order for query.
      *
-     * @param  string $field
-     * @param  string $rule
+     * @param string $field
+     * @param string $rule
      * @return $this
      */
     public function addOrderBy(string $field, string $rule = 'desc'): Builder
@@ -204,7 +204,7 @@ class Builder
     /**
      * Highlight specified fields in the request by raw array of parameters.
      *
-     * @param  array $params
+     * @param array $params
      * @return $this
      */
     public function highlightRaw(array $params): Builder
@@ -217,7 +217,7 @@ class Builder
     /**
      * Set the relationships that should be eager loaded.
      *
-     * @param  string ...$relations
+     * @param string ...$relations
      * @return $this
      */
     public function with(string ...$relations)
@@ -373,7 +373,7 @@ class Builder
     /**
      * Inject query builder query parameters to request params array.
      *
-     * @param  array &$params
+     * @param array &$params
      * @return void
      */
     protected function injectQueryParameters(array &$params)
@@ -402,7 +402,7 @@ class Builder
     /**
      * Inject limit/offset query builder parameters to request params array.
      *
-     * @param  array &$params
+     * @param array &$params
      * @return void
      */
     protected function injectPaginationParameters(array &$params)
@@ -419,7 +419,7 @@ class Builder
     /**
      * Inject highlight query builder parameters to request params array.
      *
-     * @param  array &$params
+     * @param array &$params
      * @return void
      */
     protected function injectHighlightParameters(array &$params)

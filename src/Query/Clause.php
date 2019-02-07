@@ -24,7 +24,7 @@ class Clause
     /**
      * Parameter constructor.
      *
-     * @param  \D3jn\Larelastic\Query\Clause|null $parent
+     * @param \D3jn\Larelastic\Query\Clause|null $parent
      * @return mixed
      */
     public function __construct(?Clause $parent = null)
@@ -35,7 +35,7 @@ class Clause
     /**
      * Handle dynamic property calls.
      *
-     * @param  string $name
+     * @param string $name
      * @return \D3jn\Larelastic\Query\Clause
      */
     public function __get(string $name): Clause
@@ -50,8 +50,8 @@ class Clause
     /**
      * Handle dynamic method calls.
      *
-     * @param  string $name
-     * @param  array  $arguments
+     * @param string $name
+     * @param array  $arguments
      * @return \D3jn\Larelastic\Query\Clause
      */
     public function __call(string $name, array $arguments): Clause
