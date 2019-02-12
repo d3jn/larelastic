@@ -1,6 +1,6 @@
 <?php
 
-namespace D3jn\Larelastic\Query\Concerns;
+namespace D3jn\Larelastic\Query\Traits;
 
 use D3jn\Larelastic\Query\Dsl;
 

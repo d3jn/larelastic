@@ -207,6 +207,30 @@ class Builder
     }
 
     /**
+     * Highlight specified fields in the request.
+     *
+     * @param array $fields
+     * @param array $settings
+     *
+     * @return $this
+     */
+    public function highlight(array $fields, array $settings = []): Builder
+    {
+        foreach ($fields as &$field) {
+            // Empty highlight field clauses must be represented as empty objects.
+            // This will guarantee future conversion to a valid query JSON representation.
+            if ($field === []) {
+                $field = (object) [];
+            }
+        }
+
+        // Adding fields to the root level of highlight settings.
+        $settings['fields'] = $fields;
+
+        return $this->highlightRaw($settings);
+    }
+
+    /**
      * Highlight specified fields in the request by raw array of parameters.
      *
      * @param array $params

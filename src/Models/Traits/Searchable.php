@@ -149,7 +149,7 @@ trait Searchable
      */
     public function getPrimary(array $attributes)
     {
-        return $attributes['_source'][$this->getKeyName()];
+        return $attributes['_id'];
     }
 
     /**

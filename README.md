@@ -148,11 +148,14 @@ The most important part is methods like `get()` will return you hydrated collect
 You can construct your query using in-built chain calling starting with `query()` method first, for example:
 
 ```php
-$query = Larelastic::posts()->query()
-    ->multimatch
-        ->query('test post')
-        ->fields(['title^3', 'content'])
+$posts = Larelastic::posts()
+    ->query()
+        ->multi_match
+            ->query('test post')
+            ->fields(['title^3', 'content'])
+        ->end()
     ->end()
+    ->highlightRaw(['fields' => ['title' => []]])
     ->get();
 ```
 

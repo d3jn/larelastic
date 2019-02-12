@@ -25,8 +25,6 @@ class Clause
      * Parameter constructor.
      *
      * @param \D3jn\Larelastic\Query\Clause|null $parent
-     *
-     * @return mixed
      */
     public function __construct(?Clause $parent = null)
     {
@@ -40,7 +38,7 @@ class Clause
      *
      * @return \D3jn\Larelastic\Query\Clause
      */
-    public function __get(string $name): Clause
+    public function __get(string $name)
     {
         if (! isset($this->parameters[$name])) {
             $this->parameters[$name] = new Clause($this);
@@ -57,7 +55,7 @@ class Clause
      *
      * @return \D3jn\Larelastic\Query\Clause
      */
-    public function __call(string $name, array $arguments): Clause
+    public function __call(string $name, array $arguments)
     {
         if (empty($arguments)) {
             if (! array_key_exists($name, $this->parameters)) {
@@ -80,7 +78,7 @@ class Clause
      *
      * @return \D3jn\Larelastic\Query\Clause
      */
-    public function end(): Clause
+    public function end()
     {
         if ($this->parent === null) {
             throw new LogicException('No upper level found! This end() call does nothing.');

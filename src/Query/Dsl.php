@@ -19,8 +19,6 @@ class Dsl extends Clause
      *
      * @param \D3jn\Larelastic\Query\Builder $builder
      * @param \D3jn\Elastic\Dsl\Clause|null  $parent
-     *
-     * @return mixed
      */
     public function __construct(Builder $builder, ?Clause $parent = null)
     {
@@ -33,7 +31,6 @@ class Dsl extends Clause
      * Handle dynamic property calls.
      *
      * @param string $name
-     *
      * @return \D3jn\Larelastic\Query\Dsl
      */
     public function __get(string $name)
@@ -43,6 +40,20 @@ class Dsl extends Clause
         }
 
         return $this->parameters[$name];
+    }
+
+    /**
+     * End working with current clause and jump back to parent level.
+     *
+     * @return \D3jn\Larelastic\Query\Clause|\D3jn\Larelastic\Query\Builder
+     */
+    public function end()
+    {
+        if ($this->parent === null) {
+            return $this->builder;
+        }
+
+        return $this->parent;
     }
 
     /**
