@@ -2,8 +2,8 @@
 
 namespace D3jn\Larelastic\Models\Traits;
 
-use Illuminate\Support\Facades\App;
 use D3jn\Larelastic\Models\Observers\SearchableObserver;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -156,6 +156,7 @@ trait Searchable
      * Get searchable instance by specified id or null if not found.
      *
      * @param mixed $id
+     *
      * @return \D3jn\Larelastic\Contracts\Models\Searchable|null
      */
     public function getByID($id): ?\D3jn\Larelastic\Contracts\Models\Searchable
@@ -168,6 +169,7 @@ trait Searchable
      *
      * @param array $ids
      * @param array $relations
+     *
      * @return \Illuminate\Support\Collection
      */
     public function getByIDs(array $ids, array $relations = []): \Illuminate\Support\Collection
@@ -188,7 +190,6 @@ trait Searchable
     /**
      * Attach attribute values from elasticsearch version of this instance.
      *
-     * @return void
      */
     public function setElasticData(array $attributes): void
     {
@@ -216,6 +217,7 @@ trait Searchable
      * matches will be returned.
      *
      * @param string|null $field
+     *
      * @return \Illuminate\Support\Collection
      */
     public function getHighlight(?string $field): \Illuminate\Support\Collection
@@ -235,6 +237,7 @@ trait Searchable
      * Get refresh option value for sync queries.
      *
      * @param string $action
+     *
      * @return mixed
      */
     public function getRefreshState()
@@ -254,7 +257,6 @@ trait Searchable
      * Get refresh option value for sync queries.
      *
      * @param mixed $refresh
-     * @return void
      */
     public function setRefreshState($refresh): void
     {
@@ -268,7 +270,6 @@ trait Searchable
     /**
      * Sync model to elastic.
      *
-     * @return void
      */
     public function updateInElastic(): void
     {
@@ -283,8 +284,6 @@ trait Searchable
 
     /**
      * Remove model from elastic.
-     *
-     * @return void
      */
     public function deleteFromElastic(): void
     {

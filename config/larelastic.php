@@ -48,18 +48,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Default Index
-    |--------------------------------------------------------------------------
-    |
-    | Default name of the index to use for searchable entities if nothing else
-    | is specified (directly in the model or in type indices map above).
-    |
-    */
-
-    'default_index' => env('ELASTICSEARCH_DEFAULT_INDEX', 'default_index'),
-
-    /*
-    |--------------------------------------------------------------------------
     | Available Hosts
     |--------------------------------------------------------------------------
     |

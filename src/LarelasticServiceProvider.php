@@ -4,9 +4,10 @@ namespace D3jn\Larelastic;
 
 use D3jn\Larelastic\Console\Commands\IndexCommand;
 use D3jn\Larelastic\Contracts\IndexResolver;
+use D3jn\Larelastic\Exceptions\NoIndexForTypeException;
 use D3jn\Larelastic\Query\Factory;
-use Illuminate\Support\ServiceProvider;
 use Elasticsearch\ClientBuilder;
+use Illuminate\Support\ServiceProvider;
 
 class LarelasticServiceProvider extends ServiceProvider implements IndexResolver
 {
@@ -14,6 +15,7 @@ class LarelasticServiceProvider extends ServiceProvider implements IndexResolver
      * Get index name for specified type.
      *
      * @param string $type
+     *
      * @return string
      */
     public function resolveIndexForType($type): string
@@ -21,7 +23,7 @@ class LarelasticServiceProvider extends ServiceProvider implements IndexResolver
         $index = config("larelastic.type_indices.{$type}");
 
         if (empty($index)) {
-            return config('larelastic.default_index');
+            throw new NoIndexForTypeException("Type <$type> doesn't have index specified!");
         }
 
         return $index;
@@ -29,8 +31,6 @@ class LarelasticServiceProvider extends ServiceProvider implements IndexResolver
 
     /**
      * Perform post-registration booting of services.
-     *
-     * @return void
      */
     public function boot()
     {
@@ -45,8 +45,6 @@ class LarelasticServiceProvider extends ServiceProvider implements IndexResolver
 
     /**
      * Registers this package's services.
-     *
-     * @return void
      */
     public function register()
     {

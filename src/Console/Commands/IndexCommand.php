@@ -3,8 +3,8 @@
 namespace D3jn\Larelastic\Console\Commands;
 
 use D3jn\Larelastic\Contracts\Models\Searchable;
-use Illuminate\Console\Command;
 use Elasticsearch\Client;
+use Illuminate\Console\Command;
 
 class IndexCommand extends Command
 {
@@ -31,7 +31,6 @@ class IndexCommand extends Command
      * Drop existing indices.
      *
      * @param array $indices
-     * @return void
      */
     protected function deleteExistingIndices(array $indices): void
     {
@@ -52,7 +51,6 @@ class IndexCommand extends Command
      * Create new indices, drop existing ones.
      *
      * @param array $indices
-     * @return void
      */
     protected function createNewIndices(array $indices): void
     {
@@ -71,6 +69,7 @@ class IndexCommand extends Command
      * Import type entities. Return number of imported records.
      *
      * @param array $typeEntities
+     *
      * @return int
      */
     protected function importTypeEntities(array $typeEntities): int

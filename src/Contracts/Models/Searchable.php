@@ -58,6 +58,7 @@ interface Searchable
      * Get searchable instance by specified id or null if not found.
      *
      * @param mixed $id
+     *
      * @return \D3jn\Larelastic\Contracts\Models\Searchable|null
      */
     public function getByID($id): ?Searchable;
@@ -67,6 +68,7 @@ interface Searchable
      *
      * @param array $ids
      * @param array $relations
+     *
      * @return \Illuminate\Support\Collection
      */
     public function getByIDs(array $ids, array $relations = []): \Illuminate\Support\Collection;
@@ -74,7 +76,6 @@ interface Searchable
     /**
      * Attach attribute values from elasticsearch version of this instance.
      *
-     * @return void
      */
     public function setElasticData(array $attributes): void;
 
@@ -96,6 +97,7 @@ interface Searchable
      * matches will be returned.
      *
      * @param string|null $field
+     *
      * @return mixed
      */
     public function getHighlight(?string $field);
@@ -118,21 +120,18 @@ interface Searchable
      * Set refresh option value for sync queries.
      *
      * @param mixed $refresh
-     * @return void
      */
     public function setRefreshState($refresh): void;
 
     /**
      * Sync model to elastic.
      *
-     * @return void
      */
     public function updateInElastic(): void;
 
     /**
      * Remove model from elastic.
      *
-     * @return void
      */
     public function deleteFromElastic(): void;
 }

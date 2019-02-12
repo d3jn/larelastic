@@ -19,6 +19,7 @@ class Dsl extends Clause
      *
      * @param \D3jn\Larelastic\Query\Builder $builder
      * @param \D3jn\Elastic\Dsl\Clause|null  $parent
+     *
      * @return mixed
      */
     public function __construct(Builder $builder, ?Clause $parent = null)
@@ -32,6 +33,7 @@ class Dsl extends Clause
      * Handle dynamic property calls.
      *
      * @param string $name
+     *
      * @return \D3jn\Larelastic\Query\Dsl
      */
     public function __get(string $name)
@@ -47,6 +49,7 @@ class Dsl extends Clause
      * Get searchable instance by specified id or null if not found.
      *
      * @param string $id
+     *
      * @return \D3jn\Larelastic\Contracts\Models\Searchable|null
      */
     public function find(string $id): ?Searchable

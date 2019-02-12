@@ -2,9 +2,9 @@
 
 namespace D3jn\Larelastic;
 
-use D3jn\Larelastic\Exceptions\UnsupportedTypeException;
-use D3jn\Larelastic\Exceptions\UnknownTypeException;
 use D3jn\Larelastic\Contracts\Models\Searchable;
+use D3jn\Larelastic\Exceptions\UnknownTypeException;
+use D3jn\Larelastic\Exceptions\UnsupportedTypeException;
 use D3jn\Larelastic\Query\Builder;
 use D3jn\Larelastic\Query\Factory;
 
@@ -25,6 +25,7 @@ class Larelastic
      *
      * @param string $name
      * @param array  $arguments
+     *
      * @return mixed
      */
     public function __call(string $name, array $arguments)

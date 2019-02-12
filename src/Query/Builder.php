@@ -99,6 +99,7 @@ class Builder
      * query object via other (i.e., DSL) methods.
      *
      * @param array $request
+     *
      * @return $this
      */
     public function requestRaw(array $request): Builder
@@ -112,6 +113,7 @@ class Builder
      * Set query parameters for request by raw array of parameters.
      *
      * @param array $query
+     *
      * @return $this
      */
     public function queryRaw(array $query): Builder
@@ -124,7 +126,8 @@ class Builder
     /**
      * Limit results count.
      *
-     * @param  int limit
+     * @param int limit
+     *
      * @return $this
      */
     public function limit(int $limit): Builder
@@ -152,7 +155,8 @@ class Builder
     /**
      * Offset results.
      *
-     * @param  int offset
+     * @param int offset
+     *
      * @return $this
      */
     public function offset(int $offset): Builder
@@ -182,6 +186,7 @@ class Builder
      *
      * @param string $field
      * @param string $rule
+     *
      * @return $this
      */
     public function addOrderBy(string $field, string $rule = 'desc'): Builder
@@ -205,6 +210,7 @@ class Builder
      * Highlight specified fields in the request by raw array of parameters.
      *
      * @param array $params
+     *
      * @return $this
      */
     public function highlightRaw(array $params): Builder
@@ -218,6 +224,7 @@ class Builder
      * Set the relationships that should be eager loaded.
      *
      * @param string ...$relations
+     *
      * @return $this
      */
     public function with(string ...$relations)
@@ -374,7 +381,6 @@ class Builder
      * Inject query builder query parameters to request params array.
      *
      * @param array &$params
-     * @return void
      */
     protected function injectQueryParameters(array &$params)
     {
@@ -390,7 +396,6 @@ class Builder
      *
      * @param array &$params
      *
-     * @return void
      */
     protected function injectSortParameters(array &$params)
     {
@@ -403,7 +408,6 @@ class Builder
      * Inject limit/offset query builder parameters to request params array.
      *
      * @param array &$params
-     * @return void
      */
     protected function injectPaginationParameters(array &$params)
     {
@@ -420,7 +424,6 @@ class Builder
      * Inject highlight query builder parameters to request params array.
      *
      * @param array &$params
-     * @return void
      */
     protected function injectHighlightParameters(array &$params)
     {

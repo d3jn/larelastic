@@ -41,7 +41,6 @@ Now you can proceed with configuring this package for your needs.
 At first you will need to setup your hosts for Elasticsearch client accordingly in your `.env` file:
 
 ```
-ELASTICSEARCH_DEFAULT_INDEX=test_index
 ELASTICSEARCH_HOST=elasticsearch
 ELASTICSEARCH_PORT=9200
 ELASTICSEARCH_PROTOCOL=http
