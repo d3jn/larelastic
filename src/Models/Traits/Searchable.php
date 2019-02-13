@@ -24,7 +24,7 @@ trait Searchable
      *
      * @var bool
      */
-    protected $defaultElasticRefreshState = null;
+    protected $defaultElasticRefreshState = false;
 
     /**
      * Attach our observer to searchable entities using this trait.

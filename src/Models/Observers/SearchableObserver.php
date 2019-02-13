@@ -29,7 +29,7 @@ class SearchableObserver
      */
     public function saved(Searchable $entity): void
     {
-        $entity->updateInElastic();
+        $entity->syncToElastic();
     }
 
     /**
