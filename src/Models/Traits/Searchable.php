@@ -20,11 +20,11 @@ trait Searchable
     protected $elasticData = null;
 
     /**
-     * Default refresh value.
+     * Whether to force Elasticsearch refresh.
      *
-     * @var mixed
+     * @var bool
      */
-    protected $defaultElasticRefresh = false;
+    protected $defaultElasticRefreshState = null;
 
     /**
      * Attach our observer to searchable entities using this trait.
@@ -77,16 +77,23 @@ trait Searchable
     }
 
     /**
+     * Serialize current model instance into array for it's type.
+     *
+     * @return array
+     */
+    protected function toSearchArray(): array
+    {
+        return $this->toArray();
+    }
+
+    /**
      * Get searchable field values for this entity.
      *
      * @return array
      */
     public function getSearchAttributes(): array
     {
-        $result = method_exists($this, 'toSearchArray')
-            ? $this->toSearchArray()
-            : $this->toArray();
-
+        $result = $this->toSearchArray();
         if (! isset($result[$this->getKeyName()])) {
             $result[$this->getKeyName()] = $this->getKey();
         }
@@ -96,7 +103,7 @@ trait Searchable
 
     /**
      * Get mapping for this searchable entity. Returns empty array if no mapping
-     * should be specified for the type in elasticsearch index.
+     * should be specified for the type in Elasticsearch index.
      *
      * @return array
      */
@@ -116,10 +123,6 @@ trait Searchable
      */
     public function getSearchableEntitiesQuery(): \Illuminate\Database\Eloquent\Builder
     {
-        if (method_exists($this, 'overrideGetSearchableEntities')) {
-            return $this->overrideGetSearchableEntities();
-        }
-
         return (new static)->orderBy($this->getKeyName());
     }
 
@@ -130,20 +133,20 @@ trait Searchable
      */
     public function walkSearchableEntities(callable $callback)
     {
-        if (method_exists($this, 'overrideWalkSearchableEntities')) {
-            $this->customWalkSearchableEntities($callback);
-        } else {
-            // Default implementation.
-            $this->getSearchableEntitiesQuery()->chunk(100, function ($entities) use ($callback) {
-                foreach ($entities as $entity) {
-                    $callback($entity);
-                }
-            });
+        $query = $this->getSearchableEntitiesQuery();
+        if (property_exists($this, 'walkSearchableWith') && ! empty($this->walkSearchableWith)) {
+            $query->with($this->walkSearchableWith);
         }
+
+        $query->chunk(100, function ($entities) use ($callback) {
+            foreach ($entities as $entity) {
+                $callback($entity);
+            }
+        });
     }
 
     /**
-     * Get primary value from elasticsearch attributes of this instance.
+     * Get primary value from Elasticsearch attributes of this instance.
      *
      * @return mixed
      */
@@ -188,7 +191,7 @@ trait Searchable
     }
 
     /**
-     * Attach attribute values from elasticsearch version of this instance.
+     * Attach attribute values from Elasticsearch version of this instance.
      *
      */
     public function setElasticData(array $attributes): void
@@ -197,9 +200,9 @@ trait Searchable
     }
 
     /**
-     * Get attribute values from elasticsearch version of this instance.
+     * Get attribute values from Elasticsearch version of this instance.
      *
-     * Returns null if elasticsearch counterpart wasn't assigned to this
+     * Returns null if Elasticsearch counterpart wasn't assigned to this
      * entity.
      *
      * @return array|null
@@ -210,7 +213,7 @@ trait Searchable
     }
 
     /**
-     * Get highlight match for field if present within elastic data for this
+     * Get highlight match for field if present within Elasticsearch data for this
      * searchable entity.
      *
      * If $field is not specified then collection of all existing highlighted
@@ -236,62 +239,71 @@ trait Searchable
     /**
      * Get refresh option value for sync queries.
      *
-     * @param string $action
-     *
-     * @return mixed
+     * @return bool
      */
-    public function getRefreshState()
+    public function getElasticRefreshState(): bool
     {
         if (App::environment('testing')) {
             return true;
         }
 
-        if (property_exists($this, 'elasticsearchRefresh')) {
-            return $this->elasticsearchRefresh;
+        if (property_exists($this, 'forceElasticRefresh')) {
+            return $this->forceElasticRefresh;
         }
 
-        return $this->defaultElasticRefresh;
+        return $this->defaultElasticRefreshState;
     }
 
     /**
      * Get refresh option value for sync queries.
      *
-     * @param mixed $refresh
+     * @param bool $refresh
      */
-    public function setRefreshState($refresh): void
+    public function setElasticRefreshState(bool $refresh): void
     {
-        if (property_exists($this, 'elasticsearchRefresh')) {
-            $this->elasticsearchRefresh = $refresh;
+        if (property_exists($this, 'forceElasticRefresh')) {
+            $this->forceElasticRefresh = $refresh;
         }
 
-        $this->defaultElasticRefresh = $refresh;
+        $this->defaultElasticRefreshState = $refresh;
     }
 
     /**
-     * Sync model to elastic.
+     * Sync (create or update) searchable entity to Elasticsearch index.
      *
+     * @param bool|null $forceRefresh
      */
-    public function updateInElastic(): void
+    public function syncToElastic(?bool $forceRefresh = null): void
     {
+        if ($forceRefresh === null) {
+            $forceRefresh = $this->getElasticRefreshState();
+        }
+
         app('Elasticsearch\Client')->index([
             'index' => $this->getSearchIndex(),
             'type' => $this->getSearchType(),
             'id' => $this->id,
             'body' => $this->getSearchAttributes(),
-            'refresh' => $this->getRefreshState()
+            'refresh' => $forceRefresh
         ]);
     }
 
     /**
-     * Remove model from elastic.
+     * Delete model from Elasticsearch index.
+     *
+     * @param bool|null $forceRefresh
      */
-    public function deleteFromElastic(): void
+    public function deleteFromElastic(?bool $forceRefresh = null): void
     {
+        if ($forceRefresh === null) {
+            $forceRefresh = $this->getElasticRefreshState();
+        }
+
         app('Elasticsearch\Client')->delete([
             'index' => $this->getSearchIndex(),
             'type' => $this->getSearchType(),
             'id' => $this->id,
-            'refresh' => $this->getRefreshState()
+            'refresh' => $forceRefresh
         ]);
     }
 }

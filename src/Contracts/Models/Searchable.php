@@ -34,7 +34,7 @@ interface Searchable
 
     /**
      * Get mapping for this searchable entity. Returns empty array if no mapping
-     * should be specified for the type in elasticsearch index.
+     * should be specified for the type in Elasticsearch index.
      *
      * @return array
      */
@@ -48,7 +48,7 @@ interface Searchable
     public function walkSearchableEntities(callable $callback);
 
     /**
-     * Get primary value from elasticsearch attributes of this instance.
+     * Get primary value from Elasticsearch attributes of this instance.
      *
      * @return mixed
      */
@@ -74,15 +74,15 @@ interface Searchable
     public function getByIDs(array $ids, array $relations = []): \Illuminate\Support\Collection;
 
     /**
-     * Attach attribute values from elasticsearch version of this instance.
+     * Attach attribute values from Elasticsearch version of this instance.
      *
      */
     public function setElasticData(array $attributes): void;
 
     /**
-     * Get attribute values from elasticsearch version of this instance.
+     * Get attribute values from Elasticsearch version of this instance.
      *
-     * Returns null if elasticsearch counterpart wasn't assigned to this
+     * Returns null if Elasticsearch counterpart wasn't assigned to this
      * entity.
      *
      * @return array|null
@@ -114,24 +114,26 @@ interface Searchable
      *
      * @return mixed
      */
-    public function getRefreshState();
+    public function getElasticRefreshState();
 
     /**
      * Set refresh option value for sync queries.
      *
-     * @param mixed $refresh
+     * @param bool $refresh
      */
-    public function setRefreshState($refresh): void;
+    public function setElasticRefreshState(bool $refresh): void;
 
     /**
-     * Sync model to elastic.
+     * Sync (create or update) searchable entity to Elasticsearch index.
      *
+     * @param bool|null $forceRefresh
      */
-    public function updateInElastic(): void;
+    public function syncToElastic(?bool $forceRefresh = null): void;
 
     /**
-     * Remove model from elastic.
+     * Delete model from Elasticsearch index.
      *
+     * @param bool|null $forceRefresh
      */
-    public function deleteFromElastic(): void;
+    public function deleteFromElastic(?bool $forceRefresh = null): void;
 }
