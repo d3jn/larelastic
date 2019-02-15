@@ -419,7 +419,6 @@ class Builder
      * Inject query builder sort parameters to request params array.
      *
      * @param array &$params
-     *
      */
     protected function injectSortParameters(array &$params)
     {

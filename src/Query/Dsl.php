@@ -31,6 +31,7 @@ class Dsl extends Clause
      * Handle dynamic property calls.
      *
      * @param string $name
+     *
      * @return \D3jn\Larelastic\Query\Dsl
      */
     public function __get(string $name)

@@ -192,7 +192,6 @@ trait Searchable
 
     /**
      * Attach attribute values from Elasticsearch version of this instance.
-     *
      */
     public function setElasticData(array $attributes): void
     {
