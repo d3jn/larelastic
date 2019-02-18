@@ -5,6 +5,7 @@ namespace D3jn\Larelastic\Console\Commands;
 use D3jn\Larelastic\Contracts\Models\Searchable;
 use Elasticsearch\Client;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Config;
 
 class IndexCommand extends Command
 {
@@ -129,7 +130,7 @@ class IndexCommand extends Command
         $this->info("Reading configuration...");
 
         // Preparing data.
-        $types = config('larelastic.types');
+        $types = Config::get('larelastic.types');
         $typeEntities = [];
         $indices = [];
         $typeCount = 0;

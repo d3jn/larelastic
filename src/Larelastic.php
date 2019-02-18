@@ -7,6 +7,7 @@ use D3jn\Larelastic\Exceptions\UnknownTypeException;
 use D3jn\Larelastic\Exceptions\UnsupportedTypeException;
 use D3jn\Larelastic\Query\Builder;
 use D3jn\Larelastic\Query\Factory;
+use Illuminate\Support\Facades\Config;
 
 class Larelastic
 {
@@ -30,12 +31,14 @@ class Larelastic
      */
     public function __call(string $name, array $arguments)
     {
-        $types = config('larelastic.types');
+        $types = Config::get('larelastic.types');
         $source = null;
 
         foreach ($types as $class) {
             if (! in_array(Searchable::class, class_implements($class))) {
-                throw new UnsupportedTypeException("Class <{$class}> must implement Searchable contract! Check your types configuration in <config/larelastic.php>");
+                throw new UnsupportedTypeException(
+                    "Class <{$class}> must implement Searchable contract! Check your types configuration in <config/larelastic.php>"
+                );
             }
 
             $entity = new $class;
@@ -45,9 +48,11 @@ class Larelastic
         }
 
         if ($source == null) {
-            throw new UnknownTypeException("Can't generate Builder for type <$name> since such a type is not found within Larelastic types configuration!");
+            throw new UnknownTypeException(
+                "Can't generate Builder for type <$name> since such a type is not found within Larelastic types configuration!"
+            );
         }
 
-        return app()->make(Builder::class, ['source' => $source]);
+        return App::make(Builder::class, compact('source'));
     }
 }

@@ -4,6 +4,7 @@ namespace D3jn\Larelastic\Models\Traits;
 
 use D3jn\Larelastic\Models\Observers\SearchableObserver;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -31,7 +32,7 @@ trait Searchable
      */
     public static function bootSearchable()
     {
-        if (config('larelastic.enabled', true)) {
+        if (Config::get('larelastic.enabled', true)) {
             static::observe(SearchableObserver::class);
         }
     }
@@ -43,13 +44,10 @@ trait Searchable
      */
     public function getSearchIndex(): string
     {
-        if (property_exists($this, 'searchIndex')) {
-            return $this->searchIndex;
-        }
+        $index = property_exists($this, 'searchIndex') ? $this->searchIndex : null;
+        $type = $this->getSearchType();
 
-        return app('D3jn\Larelastic\Contracts\IndexResolver')->resolveIndexForType(
-            $this->getSearchType()
-        );
+        return App::make('larelastic.default-index-resolver')->resolveIndexForType($type, $index);
     }
 
     /**
@@ -278,7 +276,7 @@ trait Searchable
             $forceRefresh = $this->getElasticRefreshState();
         }
 
-        app('Elasticsearch\Client')->index([
+        App::make('Elasticsearch\Client')->index([
             'index' => $this->getSearchIndex(),
             'type' => $this->getSearchType(),
             'id' => $this->id,
@@ -298,7 +296,7 @@ trait Searchable
             $forceRefresh = $this->getElasticRefreshState();
         }
 
-        app('Elasticsearch\Client')->delete([
+        App::make('Elasticsearch\Client')->delete([
             'index' => $this->getSearchIndex(),
             'type' => $this->getSearchType(),
             'id' => $this->id,

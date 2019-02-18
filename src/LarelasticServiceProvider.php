@@ -3,44 +3,25 @@
 namespace D3jn\Larelastic;
 
 use D3jn\Larelastic\Console\Commands\IndexCommand;
-use D3jn\Larelastic\Contracts\IndexResolver;
-use D3jn\Larelastic\Exceptions\NoIndexForTypeException;
-use D3jn\Larelastic\Query\Factory;
+use D3jn\Larelastic\Resolvers\ConfigIndexResolver;
 use Elasticsearch\ClientBuilder;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
 
-class LarelasticServiceProvider extends ServiceProvider implements IndexResolver
+class LarelasticServiceProvider extends ServiceProvider
 {
-    /**
-     * Get index name for specified type.
-     *
-     * @param string $type
-     *
-     * @return string
-     */
-    public function resolveIndexForType($type): string
-    {
-        $index = config("larelastic.type_indices.{$type}");
-
-        if (empty($index)) {
-            throw new NoIndexForTypeException("Type <$type> doesn't have index specified!");
-        }
-
-        return $index;
-    }
-
     /**
      * Perform post-registration booting of services.
      */
     public function boot()
     {
+        $config = App::make('path.config') . DIRECTORY_SEPARATOR . 'larelastic.php';
         $this->publishes([
-            __DIR__ . '/../config/larelastic.php' => config_path('larelastic.php')
+            __DIR__ . '/../config/larelastic.php' => $config
         ]);
 
-        $this->commands([
-            IndexCommand::class
-        ]);
+        $this->commands([IndexCommand::class]);
     }
 
     /**
@@ -55,15 +36,13 @@ class LarelasticServiceProvider extends ServiceProvider implements IndexResolver
 
         $this->app->singleton('Elasticsearch\Client', function () {
             return ClientBuilder::create()
-                ->setHosts(config('larelastic.hosts'))
+                ->setHosts(Config::get('larelastic.hosts'))
                 ->build();
         });
 
-        $this->app->singleton('D3jn\Larelastic\Contracts\IndexResolver', function () {
-            return $this;
+        $this->app->bind('larelastic.default-index-resolver', function () {
+            return new ConfigIndexResolver;
         });
-
-        $this->app->singleton('D3jn\Larelastic\Query\Factory', Factory::class);
 
         $this->app->bind('larelastic', Larelastic::class);
     }
