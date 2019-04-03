@@ -14,7 +14,7 @@ class IndexCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'larelastic:index {--refresh} {--drop-only}';
+    protected $signature = 'larelastic:index {--refresh} {--drop-only} {--no-progress}';
 
     /**
      * The console command description.
@@ -76,7 +76,10 @@ class IndexCommand extends Command
     protected function importTypeEntities(array $typeEntities): int
     {
         $this->info("Starting importing process...");
-        $bar = $this->output->createProgressBar(count($typeEntities));
+
+        $bar = $this->option('no-progress')
+            ? new \Illuminate\Support\Optional(null)
+            : $this->output->createProgressBar(count($typeEntities));
         $bar->setFormat(
             "%current%/%max% [%bar%] %percent:3s%% " . PHP_EOL
             . "Time passed:\t%elapsed%" . PHP_EOL
