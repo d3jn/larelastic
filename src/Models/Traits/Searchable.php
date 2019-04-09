@@ -2,6 +2,7 @@
 
 namespace D3jn\Larelastic\Models\Traits;
 
+use Closure;
 use D3jn\Larelastic\Models\Observers\SearchableObserver;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
@@ -87,11 +88,22 @@ trait Searchable
     /**
      * Get searchable field values for this entity.
      *
+     * @param array|null $only
+     *
      * @return array
      */
-    public function getSearchAttributes(): array
+    public function getSearchAttributes(?array $only = null): array
     {
-        $result = $this->toSearchArray();
+        $searchArray = $this->toSearchArray();
+
+        $result = [];
+        foreach ($searchArray as $key => $value) {
+            if ($only === null || in_array($key, $only)) {
+                $result[$key] = $value instanceof Closure ? $value() : $value;
+            }
+        }
+
+        // Making sure id is always present to identify the record.
         if (! isset($result[$this->getKeyName()])) {
             $result[$this->getKeyName()] = $this->getKey();
         }
@@ -268,21 +280,37 @@ trait Searchable
     /**
      * Sync (create or update) searchable entity to Elasticsearch index.
      *
-     * @param bool|null $forceRefresh
+     * @param bool|null  $forceRefresh
+     * @param array|null $only
      */
-    public function syncToElastic(?bool $forceRefresh = null): void
+    public function syncToElastic(?bool $forceRefresh = null, ?array $only = null): void
     {
         if ($forceRefresh === null) {
             $forceRefresh = $this->getElasticRefreshState();
         }
 
-        App::make('Elasticsearch\Client')->index([
-            'index' => $this->getSearchIndex(),
-            'type' => $this->getSearchType(),
-            'id' => $this->id,
-            'body' => $this->getSearchAttributes(),
-            'refresh' => $forceRefresh
-        ]);
+        // If only specific keys were requested for syncing...
+        if ($only !== null) {
+            // ...then we issue partial update.
+            App::make('Elasticsearch\Client')->update([
+                'index' => $this->getSearchIndex(),
+                'type' => $this->getSearchType(),
+                'id' => $this->getSearchKey(),
+                'body' => [
+                    'doc' => $this->getSearchAttributes($only)
+                ],
+                'refresh' => $forceRefresh
+            ]);
+        } else {
+            // Otherwise we fully reindex model's respective document.
+            App::make('Elasticsearch\Client')->index([
+                'index' => $this->getSearchIndex(),
+                'type' => $this->getSearchType(),
+                'id' => $this->getSearchKey(),
+                'body' => $this->getSearchAttributes($only),
+                'refresh' => $forceRefresh
+            ]);
+        }
     }
 
     /**
@@ -299,7 +327,7 @@ trait Searchable
         App::make('Elasticsearch\Client')->delete([
             'index' => $this->getSearchIndex(),
             'type' => $this->getSearchType(),
-            'id' => $this->id,
+            'id' => $this->getSearchKey(),
             'refresh' => $forceRefresh
         ]);
     }

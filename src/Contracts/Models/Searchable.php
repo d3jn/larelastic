@@ -125,9 +125,10 @@ interface Searchable
     /**
      * Sync (create or update) searchable entity to Elasticsearch index.
      *
-     * @param bool|null $forceRefresh
+     * @param bool|null  $forceRefresh
+     * @param array|null $only
      */
-    public function syncToElastic(?bool $forceRefresh = null): void;
+    public function syncToElastic(?bool $forceRefresh = null, ?array $only = null): void;
 
     /**
      * Delete model from Elasticsearch index.
