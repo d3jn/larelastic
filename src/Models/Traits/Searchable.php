@@ -187,16 +187,23 @@ trait Searchable
      */
     public function getByIDs(array $ids, array $relations = []): \Illuminate\Support\Collection
     {
-        $query = (new static)->query();
+        $query = static::query();
 
         if (! empty($relations)) {
             $query->with($relations);
         }
 
-        $orderByID = implode(', ', $ids);
+        if ($this->keyType = 'string') {
+            // Making sure string keys are escaped properly.
+            $orderByID = implode(', ', array_map(function ($value) {
+                return $this->getConnection()->getPdo()->quote($value);
+            }, $ids));
+        } else {
+            $orderByID = implode(', ', $ids);
+        }
 
         return $query->whereIn('id', $ids)
-            ->orderByRaw(DB::raw("FIELD(id, $orderByID)"))
+            ->orderByRaw("field(id, $orderByID) asc")
             ->get();
     }
 
