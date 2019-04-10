@@ -3,6 +3,7 @@
 namespace D3jn\Larelastic\Query;
 
 use BadMethodCallException;
+use Illuminate\Support\Arr;
 use LogicException;
 
 class Clause
@@ -52,7 +53,24 @@ class Clause
             return $this->parameters[$name];
         }
 
-        $this->parameters[$name] = count($arguments) === 1 ? $arguments[0] : $arguments;
+        // Second argument determines how value should be assigned to the specified key.
+        $action = isset($arguments[1]) ? $arguments[1] : 'assign';
+        switch ($action) {
+            case 'assign':
+                $this->parameters[$name] = $arguments[0];
+                break;
+            case 'append':
+                if (array_key_exists($name, $this->parameters)) {
+                    $this->parameters[$name] = Arr::wrap($this->parameters[$name]);
+                    $this->parameters[$name][] = $arguments[0];
+                } else {
+                    $this->parameters[$name] = [$arguments[0]];
+                }
+                break;
+            default:
+                throw new LogicException("Unknown action '$action'!");
+                break;
+        }
 
         return $this;
     }
