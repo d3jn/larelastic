@@ -32,22 +32,6 @@ class Clause
     }
 
     /**
-     * Handle dynamic property calls.
-     *
-     * @param string $name
-     *
-     * @return \D3jn\Larelastic\Query\Clause
-     */
-    public function __get(string $name)
-    {
-        if (! isset($this->parameters[$name])) {
-            $this->parameters[$name] = new Clause($this);
-        }
-
-        return $this->parameters[$name];
-    }
-
-    /**
      * Handle dynamic method calls.
      *
      * @param string $name
@@ -71,6 +55,22 @@ class Clause
         $this->parameters[$name] = count($arguments) === 1 ? $arguments[0] : $arguments;
 
         return $this;
+    }
+
+    /**
+     * Handle dynamic property calls.
+     *
+     * @param string $name
+     *
+     * @return \D3jn\Larelastic\Query\Clause
+     */
+    public function __get(string $name)
+    {
+        if (! isset($this->parameters[$name])) {
+            $this->parameters[$name] = new Clause($this);
+        }
+
+        return $this->parameters[$name];
     }
 
     /**

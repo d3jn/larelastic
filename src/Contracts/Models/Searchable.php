@@ -5,54 +5,11 @@ namespace D3jn\Larelastic\Contracts\Models;
 interface Searchable
 {
     /**
-     * Return index name for this searchable entity.
+     * Delete model from Elasticsearch index.
      *
-     * @return string
+     * @param bool|null $forceRefresh
      */
-    public function getSearchIndex(): string;
-
-    /**
-     * Return index name for this searchable entity.
-     *
-     * @return string
-     */
-    public function getSearchType(): string;
-
-    /**
-     * Return primary key for searchable entity.
-     *
-     * @return string
-     */
-    public function getSearchKey(): string;
-
-    /**
-     * Get searchable field values for this entity.
-     *
-     * @return array
-     */
-    public function getSearchAttributes(): array;
-
-    /**
-     * Get mapping for this searchable entity. Returns empty array if no mapping
-     * should be specified for the type in Elasticsearch index.
-     *
-     * @return array
-     */
-    public function getTypeMapping(): array;
-
-    /**
-     * Pass through all searchable entities of this type with a given callback.
-     *
-     * @param Callable $callback
-     */
-    public function walkSearchableEntities(callable $callback);
-
-    /**
-     * Get primary value from Elasticsearch attributes of this instance.
-     *
-     * @return mixed
-     */
-    public function getPrimary(array $attributes);
+    public function deleteFromElastic(?bool $forceRefresh = null): void;
 
     /**
      * Get searchable instance by specified id or null if not found.
@@ -74,11 +31,6 @@ interface Searchable
     public function getByIDs(array $ids, array $relations = []): \Illuminate\Support\Collection;
 
     /**
-     * Attach attribute values from Elasticsearch version of this instance.
-     */
-    public function setElasticData(array $attributes): void;
-
-    /**
      * Get attribute values from Elasticsearch version of this instance.
      *
      * Returns null if Elasticsearch counterpart wasn't assigned to this
@@ -87,6 +39,13 @@ interface Searchable
      * @return array|null
      */
     public function getElasticData(): ?array;
+
+    /**
+     * Get refresh option value for sync queries.
+     *
+     * @return mixed
+     */
+    public function getElasticRefreshState();
 
     /**
      * Get highlight match for field if present within elastic data for this
@@ -109,11 +68,52 @@ interface Searchable
     public function getPerPage();
 
     /**
-     * Get refresh option value for sync queries.
+     * Get primary value from Elasticsearch attributes of this instance.
      *
      * @return mixed
      */
-    public function getElasticRefreshState();
+    public function getPrimary(array $attributes);
+
+    /**
+     * Get searchable field values for this entity.
+     *
+     * @return array
+     */
+    public function getSearchAttributes(): array;
+
+    /**
+     * Return index name for this searchable entity.
+     *
+     * @return string
+     */
+    public function getSearchIndex(): string;
+
+    /**
+     * Return primary key for searchable entity.
+     *
+     * @return string
+     */
+    public function getSearchKey(): string;
+
+    /**
+     * Return index name for this searchable entity.
+     *
+     * @return string
+     */
+    public function getSearchType(): string;
+
+    /**
+     * Get mapping for this searchable entity. Returns empty array if no mapping
+     * should be specified for the type in Elasticsearch index.
+     *
+     * @return array
+     */
+    public function getTypeMapping(): array;
+
+    /**
+     * Attach attribute values from Elasticsearch version of this instance.
+     */
+    public function setElasticData(array $attributes): void;
 
     /**
      * Set refresh option value for sync queries.
@@ -131,9 +131,9 @@ interface Searchable
     public function syncToElastic(?bool $forceRefresh = null, ?array $only = null): void;
 
     /**
-     * Delete model from Elasticsearch index.
+     * Pass through all searchable entities of this type with a given callback.
      *
-     * @param bool|null $forceRefresh
+     * @param Callable $callback
      */
-    public function deleteFromElastic(?bool $forceRefresh = null): void;
+    public function walkSearchableEntities(callable $callback);
 }

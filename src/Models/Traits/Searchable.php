@@ -6,7 +6,6 @@ use Closure;
 use D3jn\Larelastic\Models\Observers\SearchableObserver;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\DB;
 
 /**
  * This trait contains default Eloquent model implementation of
@@ -15,18 +14,18 @@ use Illuminate\Support\Facades\DB;
 trait Searchable
 {
     /**
-     * Elasticsearch data.
-     *
-     * @var array
-     */
-    protected $elasticData = null;
-
-    /**
      * Whether to force Elasticsearch refresh.
      *
      * @var bool
      */
     protected $defaultElasticRefreshState = false;
+
+    /**
+     * Elasticsearch data.
+     *
+     * @var array
+     */
+    protected $elasticData = null;
 
     /**
      * Attach our observer to searchable entities using this trait.
@@ -39,130 +38,22 @@ trait Searchable
     }
 
     /**
-     * Return index name for this searchable entity.
+     * Delete model from Elasticsearch index.
      *
-     * @return string
+     * @param bool|null $forceRefresh
      */
-    public function getSearchIndex(): string
+    public function deleteFromElastic(?bool $forceRefresh = null): void
     {
-        $index = property_exists($this, 'searchIndex') ? $this->searchIndex : null;
-        $type = $this->getSearchType();
-
-        return App::make('larelastic.default-index-resolver')->resolveIndexForType($type, $index);
-    }
-
-    /**
-     * Return index name for this searchable entity.
-     *
-     * @return string
-     */
-    public function getSearchType(): string
-    {
-        if (property_exists($this, 'searchType')) {
-            return $this->searchType;
+        if ($forceRefresh === null) {
+            $forceRefresh = $this->getElasticRefreshState();
         }
 
-        return $this->getTable();
-    }
-
-    /**
-     * Return primary key for searchable entity.
-     *
-     * @return string
-     */
-    public function getSearchKey(): string
-    {
-        return $this->getKey();
-    }
-
-    /**
-     * Serialize current model instance into array for it's type.
-     *
-     * @return array
-     */
-    protected function toSearchArray(): array
-    {
-        return $this->toArray();
-    }
-
-    /**
-     * Get searchable field values for this entity.
-     *
-     * @param array|null $only
-     *
-     * @return array
-     */
-    public function getSearchAttributes(?array $only = null): array
-    {
-        $searchArray = $this->toSearchArray();
-
-        $result = [];
-        foreach ($searchArray as $key => $value) {
-            if ($only === null || in_array($key, $only)) {
-                $result[$key] = $value instanceof Closure ? $value() : $value;
-            }
-        }
-
-        // Making sure id is always present to identify the record.
-        if (! isset($result[$this->getKeyName()])) {
-            $result[$this->getKeyName()] = $this->getKey();
-        }
-
-        return $result;
-    }
-
-    /**
-     * Get mapping for this searchable entity. Returns empty array if no mapping
-     * should be specified for the type in Elasticsearch index.
-     *
-     * @return array
-     */
-    public function getTypeMapping(): array
-    {
-        if (property_exists($this, 'typeMapping')) {
-            return $this->typeMapping;
-        }
-
-        return [];
-    }
-
-    /**
-     * Get all searchable entities query.
-     *
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function getSearchableEntitiesQuery(): \Illuminate\Database\Eloquent\Builder
-    {
-        return (new static)->orderBy($this->getKeyName());
-    }
-
-    /**
-     * Pass through searchable entities of this type with a given callback.
-     *
-     * @param Callable $callback
-     */
-    public function walkSearchableEntities(callable $callback)
-    {
-        $query = $this->getSearchableEntitiesQuery();
-        if (property_exists($this, 'walkSearchableWith') && ! empty($this->walkSearchableWith)) {
-            $query->with($this->walkSearchableWith);
-        }
-
-        $query->chunk(100, function ($entities) use ($callback) {
-            foreach ($entities as $entity) {
-                $callback($entity);
-            }
-        });
-    }
-
-    /**
-     * Get primary value from Elasticsearch attributes of this instance.
-     *
-     * @return mixed
-     */
-    public function getPrimary(array $attributes)
-    {
-        return $attributes['_id'];
+        App::make('Elasticsearch\Client')->delete([
+            'index' => $this->getSearchIndex(),
+            'type' => $this->getSearchType(),
+            'id' => $this->getSearchKey(),
+            'refresh' => $forceRefresh
+        ]);
     }
 
     /**
@@ -208,14 +99,6 @@ trait Searchable
     }
 
     /**
-     * Attach attribute values from Elasticsearch version of this instance.
-     */
-    public function setElasticData(array $attributes): void
-    {
-        $this->elasticData = $attributes;
-    }
-
-    /**
      * Get attribute values from Elasticsearch version of this instance.
      *
      * Returns null if Elasticsearch counterpart wasn't assigned to this
@@ -226,6 +109,24 @@ trait Searchable
     public function getElasticData(): ?array
     {
         return $this->elasticData;
+    }
+
+    /**
+     * Get refresh option value for sync queries.
+     *
+     * @return bool
+     */
+    public function getElasticRefreshState(): bool
+    {
+        if (App::environment('testing')) {
+            return true;
+        }
+
+        if (property_exists($this, 'forceElasticRefresh')) {
+            return $this->forceElasticRefresh;
+        }
+
+        return $this->defaultElasticRefreshState;
     }
 
     /**
@@ -253,21 +154,109 @@ trait Searchable
     }
 
     /**
-     * Get refresh option value for sync queries.
+     * Get primary value from Elasticsearch attributes of this instance.
      *
-     * @return bool
+     * @return mixed
      */
-    public function getElasticRefreshState(): bool
+    public function getPrimary(array $attributes)
     {
-        if (App::environment('testing')) {
-            return true;
+        return $attributes['_id'];
+    }
+
+    /**
+     * Get all searchable entities query.
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function getSearchableEntitiesQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        return (new static)->orderBy($this->getKeyName());
+    }
+
+    /**
+     * Get searchable field values for this entity.
+     *
+     * @param array|null $only
+     *
+     * @return array
+     */
+    public function getSearchAttributes(?array $only = null): array
+    {
+        $searchArray = $this->toSearchArray();
+
+        $result = [];
+        foreach ($searchArray as $key => $value) {
+            if ($only === null || in_array($key, $only)) {
+                $result[$key] = $value instanceof Closure ? $value() : $value;
+            }
         }
 
-        if (property_exists($this, 'forceElasticRefresh')) {
-            return $this->forceElasticRefresh;
+        // Making sure id is always present to identify the record.
+        if (! isset($result[$this->getKeyName()])) {
+            $result[$this->getKeyName()] = $this->getKey();
         }
 
-        return $this->defaultElasticRefreshState;
+        return $result;
+    }
+
+    /**
+     * Return index name for this searchable entity.
+     *
+     * @return string
+     */
+    public function getSearchIndex(): string
+    {
+        $index = property_exists($this, 'searchIndex') ? $this->searchIndex : null;
+        $type = $this->getSearchType();
+
+        return App::make('larelastic.default-index-resolver')->resolveIndexForType($type, $index);
+    }
+
+    /**
+     * Return primary key for searchable entity.
+     *
+     * @return string
+     */
+    public function getSearchKey(): string
+    {
+        return $this->getKey();
+    }
+
+    /**
+     * Return index name for this searchable entity.
+     *
+     * @return string
+     */
+    public function getSearchType(): string
+    {
+        if (property_exists($this, 'searchType')) {
+            return $this->searchType;
+        }
+
+        return $this->getTable();
+    }
+
+    /**
+     * Get mapping for this searchable entity. Returns empty array if no mapping
+     * should be specified for the type in Elasticsearch index.
+     *
+     * @return array
+     */
+    public function getTypeMapping(): array
+    {
+        if (property_exists($this, 'typeMapping')) {
+            return $this->typeMapping;
+        }
+
+        return [];
+    }
+
+    /**
+     * Attach attribute values from Elasticsearch version of this instance.
+     */
+    public function setElasticData(array $attributes): void
+    {
+        $this->elasticData = $attributes;
     }
 
     /**
@@ -321,21 +310,31 @@ trait Searchable
     }
 
     /**
-     * Delete model from Elasticsearch index.
+     * Pass through searchable entities of this type with a given callback.
      *
-     * @param bool|null $forceRefresh
+     * @param Callable $callback
      */
-    public function deleteFromElastic(?bool $forceRefresh = null): void
+    public function walkSearchableEntities(callable $callback)
     {
-        if ($forceRefresh === null) {
-            $forceRefresh = $this->getElasticRefreshState();
+        $query = $this->getSearchableEntitiesQuery();
+        if (property_exists($this, 'walkSearchableWith') && ! empty($this->walkSearchableWith)) {
+            $query->with($this->walkSearchableWith);
         }
 
-        App::make('Elasticsearch\Client')->delete([
-            'index' => $this->getSearchIndex(),
-            'type' => $this->getSearchType(),
-            'id' => $this->getSearchKey(),
-            'refresh' => $forceRefresh
-        ]);
+        $query->chunk(100, function ($entities) use ($callback) {
+            foreach ($entities as $entity) {
+                $callback($entity);
+            }
+        });
+    }
+
+    /**
+     * Serialize current model instance into array for it's type.
+     *
+     * @return array
+     */
+    protected function toSearchArray(): array
+    {
+        return $this->toArray();
     }
 }

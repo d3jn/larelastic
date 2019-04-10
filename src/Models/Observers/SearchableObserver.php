@@ -23,16 +23,6 @@ class SearchableObserver
     }
 
     /**
-     * Update passed entity when save event is triggered.
-     *
-     * @param \D3jn\Larelastic\Contracts\Models\Searchable $entity
-     */
-    public function saved(Searchable $entity): void
-    {
-        $entity->syncToElastic();
-    }
-
-    /**
      * Delete passed entity when delete event is triggered.
      *
      * @param \D3jn\Larelastic\Contracts\Models\Searchable $entity
@@ -40,5 +30,15 @@ class SearchableObserver
     public function deleted(Searchable $entity): void
     {
         $entity->deleteFromElastic();
+    }
+
+    /**
+     * Update passed entity when save event is triggered.
+     *
+     * @param \D3jn\Larelastic\Contracts\Models\Searchable $entity
+     */
+    public function saved(Searchable $entity): void
+    {
+        $entity->syncToElastic();
     }
 }

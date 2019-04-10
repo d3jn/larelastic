@@ -44,6 +44,16 @@ class Dsl extends Clause
     }
 
     /**
+     * Get count based on formed query
+     *
+     * @return int
+     */
+    public function count(): int
+    {
+        return $this->builder->count();
+    }
+
+    /**
      * End working with current clause and jump back to parent level.
      *
      * @return \D3jn\Larelastic\Query\Clause|\D3jn\Larelastic\Query\Builder
@@ -70,16 +80,6 @@ class Dsl extends Clause
     }
 
     /**
-     * Get raw array response for formed query.
-     *
-     * @return array
-     */
-    public function raw(): array
-    {
-        return $this->builder->raw();
-    }
-
-    /**
      * Get collection of Searchable instances based on formed query.
      *
      * @return \Illuminate\Support\Collection
@@ -87,6 +87,16 @@ class Dsl extends Clause
     public function get(): \Illuminate\Support\Collection
     {
         return $this->builder->get();
+    }
+
+    /**
+     * Get builder that wraps over this clause instance.
+     *
+     * @return \D3jn\Larelastic\Query\Builder
+     */
+    public function getBuilder(): Builder
+    {
+        return $this->builder;
     }
 
     /**
@@ -101,22 +111,12 @@ class Dsl extends Clause
     }
 
     /**
-     * Get count based on formed query
+     * Get raw array response for formed query.
      *
-     * @return int
+     * @return array
      */
-    public function count(): int
+    public function raw(): array
     {
-        return $this->builder->count();
-    }
-
-    /**
-     * Get builder that wraps over this clause instance.
-     *
-     * @return \D3jn\Larelastic\Query\Builder
-     */
-    public function getBuilder(): Builder
-    {
-        return $this->builder;
+        return $this->builder->raw();
     }
 }

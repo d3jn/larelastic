@@ -10,11 +10,9 @@ use Illuminate\Support\Facades\Config;
 class IndexCommand extends Command
 {
     /**
-     * The name and signature of the console command.
-     *
-     * @var string
+     * @var \Elasticsearch\Client
      */
-    protected $signature = 'larelastic:index {--refresh} {--drop-only} {--no-progress}';
+    protected $client;
 
     /**
      * The console command description.
@@ -24,101 +22,11 @@ class IndexCommand extends Command
     protected $description = '(Re)create indices for all registered entities and bulk them there';
 
     /**
-     * @var Client
-     */
-    protected $client;
-
-    /**
-     * Drop existing indices.
+     * The name and signature of the console command.
      *
-     * @param array $indices
+     * @var string
      */
-    protected function deleteExistingIndices(array $indices): void
-    {
-        $deletedCount = 0;
-        foreach ($indices as $indexName => $index) {
-            if ($this->client->indices()->exists(['index' => $indexName])) {
-                $this->info("Found existing <{$indexName}> index! Deleting...");
-                $this->client->indices()->delete(['index' => $indexName]);
-
-                $deletedCount++;
-            }
-        }
-
-        $this->info("Successfully deleted {$deletedCount} indices.");
-    }
-
-    /**
-     * Create new indices, drop existing ones.
-     *
-     * @param array $indices
-     */
-    protected function createNewIndices(array $indices): void
-    {
-        foreach ($indices as $indexName => $index) {
-            $this->info("Creating new index <{$indexName}>...");
-
-            $data = ['index' => $indexName];
-            if (! empty($index['mappings'])) {
-                $data['body']['mappings'] = $index['mappings'];
-            }
-            $this->client->indices()->create($data);
-        }
-    }
-
-    /**
-     * Import type entities. Return number of imported records.
-     *
-     * @param array $typeEntities
-     *
-     * @return int
-     */
-    protected function importTypeEntities(array $typeEntities): int
-    {
-        $this->info("Starting importing process...");
-
-        $bar = $this->option('no-progress')
-            ? new \Illuminate\Support\Optional(null)
-            : $this->output->createProgressBar(count($typeEntities));
-        $bar->setFormat(
-            "%current%/%max% [%bar%] %percent:3s%% " . PHP_EOL
-            . "Time passed:\t%elapsed%" . PHP_EOL
-            . "Importing:\t%message%"
-        );
-
-        $count = 0;
-        foreach ($typeEntities as $class => $entity) {
-            $bar->setMessage($class);
-            $bar->advance();
-
-            $bulkEntities = [];
-            $walkCallback = function (Searchable $searchable) use (&$bulkEntities, &$count, $entity) {
-                $bulkEntities[] = [
-                    'index' => [
-                        '_index' => $searchable->getSearchIndex(),
-                        '_type' => $searchable->getSearchType(),
-                        '_id' => $searchable->getSearchKey()
-                    ]
-                ];
-
-                $bulkEntities[] = $searchable->getSearchAttributes();
-                $count++;
-            };
-            $entity->walkSearchableEntities($walkCallback);
-
-            if (! empty($bulkEntities)) {
-                $this->client->bulk([
-                    'refresh' => $this->option('refresh'),
-                    'body' => $bulkEntities
-                ]);
-            }
-        }
-
-        $bar->setMessage('finished');
-        $bar->finish();
-
-        return $count;
-    }
+    protected $signature = 'larelastic:index {--refresh} {--drop-only} {--no-progress}';
 
     /**
      * Execute the console command.
@@ -173,5 +81,97 @@ class IndexCommand extends Command
 
             $this->info(PHP_EOL . "Reindexing successfully ended! Imported {$count} records in total.");
         }
+    }
+
+    /**
+     * Create new indices, drop existing ones.
+     *
+     * @param array $indices
+     */
+    protected function createNewIndices(array $indices): void
+    {
+        foreach ($indices as $indexName => $index) {
+            $this->info("Creating new index <{$indexName}>...");
+
+            $data = ['index' => $indexName];
+            if (! empty($index['mappings'])) {
+                $data['body']['mappings'] = $index['mappings'];
+            }
+            $this->client->indices()->create($data);
+        }
+    }
+
+    /**
+     * Drop existing indices.
+     *
+     * @param array $indices
+     */
+    protected function deleteExistingIndices(array $indices): void
+    {
+        $deletedCount = 0;
+        foreach ($indices as $indexName => $index) {
+            if ($this->client->indices()->exists(['index' => $indexName])) {
+                $this->info("Found existing <{$indexName}> index! Deleting...");
+                $this->client->indices()->delete(['index' => $indexName]);
+
+                $deletedCount++;
+            }
+        }
+
+        $this->info("Successfully deleted {$deletedCount} indices.");
+    }
+
+    /**
+     * Import type entities. Return number of imported records.
+     *
+     * @param array $typeEntities
+     *
+     * @return int
+     */
+    protected function importTypeEntities(array $typeEntities): int
+    {
+        $this->info("Starting importing process...");
+
+        $bar = $this->option('no-progress')
+            ? new \Illuminate\Support\Optional(null)
+            : $this->output->createProgressBar(count($typeEntities));
+        $bar->setFormat(
+            "%current%/%max% [%bar%] %percent:3s%% " . PHP_EOL
+            . "Time passed:\t%elapsed%" . PHP_EOL
+            . "Importing:\t%message%"
+        );
+
+        $count = 0;
+        foreach ($typeEntities as $class => $entity) {
+            $bar->setMessage($class);
+            $bar->advance();
+
+            $bulkEntities = [];
+            $walkCallback = function (Searchable $searchable) use (&$bulkEntities, &$count, $entity) {
+                $bulkEntities[] = [
+                    'index' => [
+                        '_index' => $searchable->getSearchIndex(),
+                        '_type' => $searchable->getSearchType(),
+                        '_id' => $searchable->getSearchKey()
+                    ]
+                ];
+
+                $bulkEntities[] = $searchable->getSearchAttributes();
+                $count++;
+            };
+            $entity->walkSearchableEntities($walkCallback);
+
+            if (! empty($bulkEntities)) {
+                $this->client->bulk([
+                    'refresh' => $this->option('refresh'),
+                    'body' => $bulkEntities
+                ]);
+            }
+        }
+
+        $bar->setMessage('finished');
+        $bar->finish();
+
+        return $count;
     }
 }

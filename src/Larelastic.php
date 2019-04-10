@@ -13,16 +13,6 @@ use Illuminate\Support\Facades\Config;
 class Larelastic
 {
     /**
-     * Get query objects factory.
-     *
-     * @return \D3jn\Larelastic\Query\Factory
-     */
-    public function query(): Factory
-    {
-        return resolve('D3jn\Larelastic\Query\Factory');
-    }
-
-    /**
      * Try resolving unexistant method as new query object or type.
      *
      * @param string $name
@@ -55,5 +45,15 @@ class Larelastic
         }
 
         return App::make(Builder::class, compact('source'));
+    }
+
+    /**
+     * Get query objects factory.
+     *
+     * @return \D3jn\Larelastic\Query\Factory
+     */
+    public function query(): Factory
+    {
+        return resolve('D3jn\Larelastic\Query\Factory');
     }
 }
