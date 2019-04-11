@@ -54,7 +54,7 @@ class Clause
         }
 
         // Second argument determines how value should be assigned to the specified key.
-        $action = isset($arguments[1]) ? $arguments[1] : 'assign';
+        $action = $arguments[1] ?? 'assign';
         switch ($action) {
             case 'assign':
                 $this->parameters[$name] = $arguments[0];

@@ -14,13 +14,15 @@ trait HasDslHelpers
     protected $dsl = null;
 
     /**
-     * Begin DSL query generation.
+     * Get DSL builder for request body.
      *
      * @return \D3jn\Larelastic\Query\Dsl
      */
-    public function query()
+    public function dsl(): Dsl
     {
-        $this->dsl = new Dsl($this, null);
+        if ($this->dsl === null) {
+            $this->dsl = new Dsl($this, null);
+        }
 
         return $this->dsl;
     }

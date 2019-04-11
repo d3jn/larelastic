@@ -63,7 +63,7 @@ trait Searchable
      *
      * @return \D3jn\Larelastic\Contracts\Models\Searchable|null
      */
-    public function getByID($id): ?\D3jn\Larelastic\Contracts\Models\Searchable
+    public function getById($id): ?\D3jn\Larelastic\Contracts\Models\Searchable
     {
         return (new static)->find($id);
     }
@@ -76,7 +76,7 @@ trait Searchable
      *
      * @return \Illuminate\Support\Collection
      */
-    public function getByIDs(array $ids, array $relations = []): \Illuminate\Support\Collection
+    public function getByIds(array $ids, array $relations = []): \Illuminate\Support\Collection
     {
         $query = static::query();
 
@@ -86,15 +86,15 @@ trait Searchable
 
         if ($this->keyType = 'string') {
             // Making sure string keys are escaped properly.
-            $orderByID = implode(', ', array_map(function ($value) {
+            $orderById = implode(', ', array_map(function ($value) {
                 return $this->getConnection()->getPdo()->quote($value);
             }, $ids));
         } else {
-            $orderByID = implode(', ', $ids);
+            $orderById = implode(', ', $ids);
         }
 
         return $query->whereIn('id', $ids)
-            ->orderByRaw("field(id, $orderByID) asc")
+            ->orderByRaw("field(id, $orderById) asc")
             ->get();
     }
 

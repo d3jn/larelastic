@@ -18,7 +18,7 @@ interface Searchable
      *
      * @return \D3jn\Larelastic\Contracts\Models\Searchable|null
      */
-    public function getByID($id): ?Searchable;
+    public function getById($id): ?Searchable;
 
     /**
      * Get collection searchable instances by specified ids.
@@ -28,7 +28,7 @@ interface Searchable
      *
      * @return \Illuminate\Support\Collection
      */
-    public function getByIDs(array $ids, array $relations = []): \Illuminate\Support\Collection;
+    public function getByIds(array $ids, array $relations = []): \Illuminate\Support\Collection;
 
     /**
      * Get attribute values from Elasticsearch version of this instance.

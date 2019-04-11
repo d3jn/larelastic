@@ -6,7 +6,6 @@ use D3jn\Larelastic\Contracts\Models\Searchable;
 use D3jn\Larelastic\Exceptions\UnknownTypeException;
 use D3jn\Larelastic\Exceptions\UnsupportedTypeException;
 use D3jn\Larelastic\Query\Builder;
-use D3jn\Larelastic\Query\Factory;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
 
@@ -45,15 +44,5 @@ class Larelastic
         }
 
         return App::make(Builder::class, compact('source'));
-    }
-
-    /**
-     * Get query objects factory.
-     *
-     * @return \D3jn\Larelastic\Query\Factory
-     */
-    public function query(): Factory
-    {
-        return resolve('D3jn\Larelastic\Query\Factory');
     }
 }

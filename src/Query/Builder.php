@@ -8,6 +8,7 @@ use D3jn\Larelastic\Query\Traits\HasDslHelpers;
 use Elasticsearch\Client;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
 
 class Builder
@@ -29,6 +30,13 @@ class Builder
     protected $highlightRaw = null;
 
     /**
+     * Raw result from last executed request from this builder.
+     *
+     * @var array|null
+     */
+    protected $lastResult = null;
+
+    /**
      * Limit for results.
      *
      * @var int|null
@@ -48,13 +56,6 @@ class Builder
      * @var array
      */
     protected $orderBy = [];
-
-    /**
-     * Query of the search request.
-     *
-     * @var array
-     */
-    protected $queryRaw;
 
     /**
      * The relationships that should be eager loaded.
@@ -88,8 +89,11 @@ class Builder
         $this->source = $source;
         $this->client = $client;
 
-        // Initializing.
-        $this->queryRaw = ['match_all' => (object) []];
+        // We initialize our request with simple query to simply match all documents of
+        // searchable type.
+        $this->requestRaw = [
+            'query' => ['match_all' => (object) []]
+        ];
     }
 
     /**
@@ -136,14 +140,13 @@ class Builder
     public function find(string $id): ?Searchable
     {
         $params = $this->getCommonParams();
-
         $params['id'] = $id;
 
         try {
             $result = $this->client->get($params);
-            $searchableID = $this->source->getPrimary($result);
+            $searchableId = $this->source->getPrimary($result);
 
-            $searchable = $this->source->getByID($searchableID);
+            $searchable = $this->source->getById($searchableID);
             $searchable->setElasticData($result);
 
             return $searchable;
@@ -165,7 +168,7 @@ class Builder
      *
      * @return \Illuminate\Support\Collection
      */
-    public function get(): \Illuminate\Support\Collection
+    public function get(): Collection
     {
         $result = $this->raw();
 
@@ -178,12 +181,22 @@ class Builder
             $hits[$this->source->getPrimary($hit)] = $hit;
         }
 
-        $searchables = $this->source->getByIDs(array_keys($hits), $this->relations);
+        $searchables = $this->source->getByIds(array_keys($hits), $this->relations);
         foreach ($searchables as $searchable) {
             $searchable->setElasticData($hits[$searchable->getKey()]);
         }
 
         return $searchables;
+    }
+
+    /**
+     * Get raw result from last executed request from this builder.
+     *
+     * @return array|null
+     */
+    public function getLastResultRaw(): ?array
+    {
+        return $this->lastResult;
     }
 
     /**
@@ -326,21 +339,7 @@ class Builder
     }
 
     /**
-     * Set query parameters for request by raw array of parameters.
-     *
-     * @param array $query
-     *
-     * @return $this
-     */
-    public function queryRaw(array $query): Builder
-    {
-        $this->queryRaw = $query;
-
-        return $this;
-    }
-
-    /**
-     * Get raw array response for formed query.
+     * Get raw array result for query from this builder.
      *
      * @return array
      */
@@ -348,12 +347,12 @@ class Builder
     {
         $params = $this->getCommonParams();
 
-        $this->injectQueryParameters($params);
+        $this->injectDslParameters($params);
         $this->injectSortParameters($params);
         $this->injectPaginationParameters($params);
         $this->injectHighlightParameters($params);
 
-        return $this->client->search($params);
+        return $this->lastResult = $this->client->search($params);
     }
 
     /**
@@ -410,14 +409,26 @@ class Builder
     {
         $default = [
             'index' => $this->source->getSearchIndex(),
-            'type' => $this->source->getSearchType(),
+            'type' => $this->source->getSearchType()
         ];
 
         if ($this->requestRaw !== null) {
-            return array_merge($default, $this->requestRaw);
+            $default['body'] = $this->requestRaw;
         }
 
         return $default;
+    }
+
+    /**
+     * Inject DSL builder body parameters to request params array.
+     *
+     * @param array &$params
+     */
+    protected function injectDslParameters(array &$params)
+    {
+        if ($this->dsl !== null) {
+            $params['body'] = $this->dsl->toArray();
+        }
     }
 
     /**
@@ -445,20 +456,6 @@ class Builder
             if ($this->offset !== null) {
                 $params['body']['from'] = $this->offset;
             }
-        }
-    }
-
-    /**
-     * Inject query builder query parameters to request params array.
-     *
-     * @param array &$params
-     */
-    protected function injectQueryParameters(array &$params)
-    {
-        if ($this->dsl !== null) {
-            $params['body']['query'] = $this->dsl->toArray();
-        } else {
-            $params['body']['query'] = $this->queryRaw;
         }
     }
 
