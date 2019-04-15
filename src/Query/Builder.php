@@ -362,16 +362,21 @@ class Builder
     /**
      * Get raw array result for query from this builder.
      *
+     * @param array $params
+     *
      * @return array
      */
-    public function raw(): array
+    public function raw(array $params = []): array
     {
-        $params = $this->getCommonParams();
+        $builderParams = $this->getCommonParams();
 
-        $this->injectDslParameters($params);
-        $this->injectSortParameters($params);
-        $this->injectPaginationParameters($params);
-        $this->injectHighlightParameters($params);
+        $this->injectDslParameters($builderParams);
+        $this->injectSortParameters($builderParams);
+        $this->injectPaginationParameters($builderParams);
+        $this->injectHighlightParameters($builderParams);
+
+        // Priority is given to the parameters passed here directly (if there are any).
+        $params = array_merge($builderParams, $params);
 
         return $this->lastResult = $this->client->search($params);
     }
