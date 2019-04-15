@@ -8,6 +8,7 @@ use D3jn\Larelastic\Query\Traits\HasDslHelpers;
 use Elasticsearch\Client;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
 
@@ -102,7 +103,7 @@ class Builder
      * @param string $field
      * @param string $rule
      *
-     * @return $this
+     * @return \D3jn\Larelastic\Query\Builder
      */
     public function addOrderBy(string $field, string $rule = 'desc'): Builder
     {
@@ -192,10 +193,17 @@ class Builder
     /**
      * Get raw result from last executed request from this builder.
      *
-     * @return array|null
+     * @param string|null $key
+     * @param mixed       $default
+     *
+     * @return mixed
      */
-    public function getLastResultRaw(): ?array
+    public function getLastResultRaw(?string $key = null, $default = null)
     {
+        if ($key !== null) {
+            return Arr::get($this->lastResult, $key, $default);
+        }
+
         return $this->lastResult;
     }
 
@@ -245,7 +253,7 @@ class Builder
      * @param array $fields
      * @param array $settings
      *
-     * @return $this
+     * @return \D3jn\Larelastic\Query\Builder
      */
     public function highlight(array $fields, array $settings = []): Builder
     {
@@ -268,7 +276,7 @@ class Builder
      *
      * @param array $params
      *
-     * @return $this
+     * @return \D3jn\Larelastic\Query\Builder
      */
     public function highlightRaw(array $params): Builder
     {
@@ -282,7 +290,7 @@ class Builder
      *
      * @param int limit
      *
-     * @return $this
+     * @return \D3jn\Larelastic\Query\Builder
      */
     public function limit(int $limit): Builder
     {
@@ -297,11 +305,24 @@ class Builder
     }
 
     /**
+     * Set the limit and offset for a given page.
+     *
+     * @param int $page
+     * @param int $perPage
+     *
+     * @return \D3jn\Larelastic\Query\Builder
+     */
+    public function forPage(int $page, int $perPage = 10)
+    {
+        return $this->offset(($page - 1) * $perPage)->limit($perPage);
+    }
+
+    /**
      * Offset results.
      *
      * @param int offset
      *
-     * @return $this
+     * @return \D3jn\Larelastic\Query\Builder
      */
     public function offset(int $offset): Builder
     {
@@ -363,7 +384,7 @@ class Builder
      *
      * @param array $request
      *
-     * @return $this
+     * @return \D3jn\Larelastic\Query\Builder
      */
     public function requestRaw(array $request): Builder
     {
@@ -377,7 +398,7 @@ class Builder
      *
      * @param string ...$relations
      *
-     * @return $this
+     * @return \D3jn\Larelastic\Query\Builder
      */
     public function with(string ...$relations)
     {
@@ -391,7 +412,7 @@ class Builder
      *
      * @param string ...$relations
      *
-     * @return $this
+     * @return \D3jn\Larelastic\Query\Builder
      */
     public function without(string ...$relations)
     {
