@@ -121,7 +121,7 @@ class Builder
     {
         $params = $this->getCommonParams();
 
-        $this->injectQueryParameters($params);
+        $this->injectDslParameters($params);
 
         // Ommit the search results.
         $params['size'] = 0;
