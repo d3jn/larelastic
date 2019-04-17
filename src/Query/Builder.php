@@ -11,10 +11,11 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Traits\Macroable;
 
 class Builder
 {
-    use HasDslHelpers;
+    use HasDslHelpers, Macroable;
 
     /**
      * ElasticSearch native PHP client.
@@ -121,7 +122,7 @@ class Builder
     {
         $params = $this->getCommonParams();
 
-        $this->injectQueryParameters($params);
+        $this->injectDslParameters($params);
 
         // Ommit the search results.
         $params['size'] = 0;
@@ -162,6 +163,19 @@ class Builder
 
             throw $e;
         }
+    }
+
+    /**
+     * Set the limit and offset for a given page.
+     *
+     * @param int $page
+     * @param int $perPage
+     *
+     * @return \D3jn\Larelastic\Query\Builder
+     */
+    public function forPage(int $page, int $perPage = 10)
+    {
+        return $this->offset(($page - 1) * $perPage)->limit($perPage);
     }
 
     /**
@@ -302,19 +316,6 @@ class Builder
         $this->limit = $limit;
 
         return $this;
-    }
-
-    /**
-     * Set the limit and offset for a given page.
-     *
-     * @param int $page
-     * @param int $perPage
-     *
-     * @return \D3jn\Larelastic\Query\Builder
-     */
-    public function forPage(int $page, int $perPage = 10)
-    {
-        return $this->offset(($page - 1) * $perPage)->limit($perPage);
     }
 
     /**

@@ -44,10 +44,7 @@ class Clause
     {
         if (empty($arguments)) {
             if (! array_key_exists($name, $this->parameters)) {
-                throw new BadMethodCallException(sprintf(
-                    'Trying to get value of unexisting clause field "%s"!',
-                    $name
-                ));
+                throw new BadMethodCallException("Trying to get value of unexisting clause field '%s'!");
             }
 
             return $this->parameters[$name];

@@ -27,7 +27,7 @@ class Larelastic
         foreach ($types as $class) {
             if (! in_array(Searchable::class, class_implements($class))) {
                 throw new UnsupportedTypeException(
-                    "Class <{$class}> must implement Searchable contract! Check your types configuration in <config/larelastic.php>"
+                    "Class '$class' must implement Searchable contract! Check your types configuration in 'config/larelastic.php'"
                 );
             }
 
@@ -39,7 +39,7 @@ class Larelastic
 
         if ($source == null) {
             throw new UnknownTypeException(
-                "Can't generate Builder for type <$name> since such a type is not found within Larelastic types configuration!"
+                "Can't generate Builder for type '$name' since such a type is not found within Larelastic types configuration!"
             );
         }
 
