@@ -29,7 +29,7 @@ class SearchableObserver
      */
     public function deleted(Searchable $entity): void
     {
-        $entity->deleteFromElastic();
+        $entity->deleteFromElasticsearch();
     }
 
     /**
@@ -39,6 +39,6 @@ class SearchableObserver
      */
     public function saved(Searchable $entity): void
     {
-        $entity->syncToElastic();
+        $entity->syncToElasticsearch();
     }
 }

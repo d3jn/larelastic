@@ -4,15 +4,16 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Larelastic Enabled
+    | Observe Searchable Models
     |--------------------------------------------------------------------------
     |
-    | Enabling observing models with searchable trait. Disabling it stops
-    | observing and syncing data between your models and ElasticSearch indices.
+    | Enables observing your models with Searchable trait. Disabling it stops
+    | observing and syncing data between your models and Elasticsearch indices
+    | whenever Eloquent's events updated and created are fired.
     |
     */
 
-    'enabled' => true,
+    'observe_searchable_models' => env('LARELASTIC_OBSERVE_MODELS', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -25,7 +26,7 @@ return [
     */
 
     'types' => [
-        // App\User::class,
+        // 'App\User',
     ],
 
     /*
@@ -33,12 +34,12 @@ return [
     | Mapping Indices For Types
     |--------------------------------------------------------------------------
     |
-    | Here you can map specific type to different indices, where type name is
-    | your key and index name is it's value. If you need more intricate logic
-    | for mapping then you should rebind and use your own implementation of
-    | D3jn\Larelastic\Contracts\IndexResolver or define index/type in model
-    | class directly if you are using D3jn\Larelastic\Models\Traits\Searchable
-    | trait implementation.
+    | Here you can specify indices names for your types, where type name is
+    | your key and index name is it's value.
+    |
+    | If you need more intricate logic for resolving indices names then you can
+    | use your own implementation of IndexResolver or override getSearchIndex()
+    | method inside your Searchable classes.
     |
     */
 
@@ -51,8 +52,7 @@ return [
     | Available Hosts
     |--------------------------------------------------------------------------
     |
-    | Array of all hosts that should be used by elasticsearch client. By
-    | default one host is already set up and gets it's values from .env file.
+    | Array of all hosts that should be used by elasticsearch client.
     |
     */
 
@@ -65,4 +65,19 @@ return [
             'pass' => env('ELASTICSEARCH_PASSWORD'),
         ],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Logging
+    |--------------------------------------------------------------------------
+    |
+    | Here you can setup different Larelastic logging settings.
+    |
+    */
+
+    'logging' => [
+        'enabled' => env('LARELASTIC_LOGGING_ENABLED', false),
+        'channel' => env('LOG_CHANNEL', null),
+        'skip_sync_queries' => true,
+    ]
 ];

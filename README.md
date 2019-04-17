@@ -143,7 +143,7 @@ $posts = Larelastic::posts()
 
 Here `posts` is the type of our `App\Post` model (for Eloquent implementation of `Searchable` trait it equals to table name by default, but you can override it in your model's class). It will return us an new query builder instance for `posts` type that has a lot of methods that mimick similar behaviour from Laravel`s very own query builder.
 
-The most important part is methods like `get()` will return you hydrated collection of **Eloquent objects**! Each of them will have attached Elasticsearch data response too that you can access via `getElasticData()` method. Method `find()` return you one Eloquent object or null (if not found) and even `paginate()` method is implemented and works exactly the same!
+The most important part is methods like `get()` will return you hydrated collection of **Eloquent objects**! Each of them will have attached Elasticsearch data response too that you can access via `getElasticsearchData()` method. Method `find()` return you one Eloquent object or null (if not found) and even `paginate()` method is implemented and works exactly the same!
 
 You can construct your query using in-built chain calling starting with `query()` method first, for example:
 

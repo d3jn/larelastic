@@ -18,7 +18,7 @@ class Builder
     use HasDslHelpers, Macroable;
 
     /**
-     * ElasticSearch native PHP client.
+     * Elasticsearch native PHP client.
      *
      * @var \Elasticsearch\Client
      */
@@ -149,7 +149,7 @@ class Builder
             $searchableId = $this->source->getPrimary($result);
 
             $searchable = $this->source->getById($searchableID);
-            $searchable->setElasticData($result);
+            $searchable->setElasticsearchData($result);
 
             return $searchable;
         } catch (\Elasticsearch\Common\Exceptions\Missing404Exception $e) {
@@ -198,7 +198,7 @@ class Builder
 
         $searchables = $this->source->getByIds(array_keys($hits), $this->relations);
         foreach ($searchables as $searchable) {
-            $searchable->setElasticData($hits[$searchable->getKey()]);
+            $searchable->setElasticsearchData($hits[$searchable->getKey()]);
         }
 
         return $searchables;

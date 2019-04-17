@@ -3,6 +3,7 @@
 namespace D3jn\Larelastic;
 
 use D3jn\Larelastic\Console\Commands\IndexCommand;
+use D3jn\Larelastic\Query\DefaultLogger;
 use D3jn\Larelastic\Resolvers\ConfigIndexResolver;
 use Elasticsearch\ClientBuilder;
 use Illuminate\Support\Facades\App;
@@ -38,6 +39,10 @@ class LarelasticServiceProvider extends ServiceProvider
             return ClientBuilder::create()
                 ->setHosts(Config::get('larelastic.hosts'))
                 ->build();
+        });
+
+        $this->app->bind('larelastic.query-logger', function () {
+            return new DefaultLogger;
         });
 
         $this->app->bind('larelastic.default-index-resolver', function () {

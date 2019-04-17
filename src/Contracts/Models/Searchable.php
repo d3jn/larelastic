@@ -9,7 +9,7 @@ interface Searchable
      *
      * @param bool|null $forceRefresh
      */
-    public function deleteFromElastic(?bool $forceRefresh = null): void;
+    public function deleteFromElasticsearch(?bool $forceRefresh = null): void;
 
     /**
      * Get searchable instance by specified id or null if not found.
@@ -38,7 +38,7 @@ interface Searchable
      *
      * @return array|null
      */
-    public function getElasticData(): ?array;
+    public function getElasticsearchData(): ?array;
 
     /**
      * Get refresh option value for sync queries.
@@ -113,7 +113,7 @@ interface Searchable
     /**
      * Attach attribute values from Elasticsearch version of this instance.
      */
-    public function setElasticData(array $attributes): void;
+    public function setElasticsearchData(array $attributes): void;
 
     /**
      * Set refresh option value for sync queries.
@@ -128,7 +128,7 @@ interface Searchable
      * @param bool|null  $forceRefresh
      * @param array|null $only
      */
-    public function syncToElastic(?bool $forceRefresh = null, ?array $only = null): void;
+    public function syncToElasticsearch(?bool $forceRefresh = null, ?array $only = null): void;
 
     /**
      * Pass through all searchable entities of this type with a given callback.

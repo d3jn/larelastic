@@ -18,7 +18,7 @@ trait Searchable
      *
      * @var bool
      */
-    protected $defaultElasticRefreshState = false;
+    protected $defaultElasticsearchRefreshState = false;
 
     /**
      * Elasticsearch data.
@@ -32,7 +32,7 @@ trait Searchable
      */
     public static function bootSearchable()
     {
-        if (Config::get('larelastic.enabled', true)) {
+        if (Config::get('larelastic.observe_searchable_models', true)) {
             static::observe(SearchableObserver::class);
         }
     }
@@ -42,10 +42,10 @@ trait Searchable
      *
      * @param bool|null $forceRefresh
      */
-    public function deleteFromElastic(?bool $forceRefresh = null): void
+    public function deleteFromElasticsearch(?bool $forceRefresh = null): void
     {
         if ($forceRefresh === null) {
-            $forceRefresh = $this->getElasticRefreshState();
+            $forceRefresh = $this->getElasticsearchRefreshState();
         }
 
         App::make('Elasticsearch\Client')->delete([
@@ -106,7 +106,7 @@ trait Searchable
      *
      * @return array|null
      */
-    public function getElasticData(): ?array
+    public function getElasticsearchData(): ?array
     {
         return $this->elasticData;
     }
@@ -116,17 +116,17 @@ trait Searchable
      *
      * @return bool
      */
-    public function getElasticRefreshState(): bool
+    public function getElasticsearchRefreshState(): bool
     {
         if (App::environment('testing')) {
             return true;
         }
 
-        if (property_exists($this, 'forceElasticRefresh')) {
-            return $this->forceElasticRefresh;
+        if (property_exists($this, 'forceElasticsearchRefresh')) {
+            return $this->forceElasticsearchRefresh;
         }
 
-        return $this->defaultElasticRefreshState;
+        return $this->defaultElasticsearchRefreshState;
     }
 
     /**
@@ -254,7 +254,7 @@ trait Searchable
     /**
      * Attach attribute values from Elasticsearch version of this instance.
      */
-    public function setElasticData(array $attributes): void
+    public function setElasticsearchData(array $attributes): void
     {
         $this->elasticData = $attributes;
     }
@@ -264,13 +264,13 @@ trait Searchable
      *
      * @param bool $refresh
      */
-    public function setElasticRefreshState(bool $refresh): void
+    public function setElasticsearchRefreshState(bool $refresh): void
     {
-        if (property_exists($this, 'forceElasticRefresh')) {
-            $this->forceElasticRefresh = $refresh;
+        if (property_exists($this, 'forceElasticsearchRefresh')) {
+            $this->forceElasticsearchRefresh = $refresh;
         }
 
-        $this->defaultElasticRefreshState = $refresh;
+        $this->defaultElasticsearchRefreshState = $refresh;
     }
 
     /**
@@ -279,10 +279,10 @@ trait Searchable
      * @param bool|null  $forceRefresh
      * @param array|null $only
      */
-    public function syncToElastic(?bool $forceRefresh = null, ?array $only = null): void
+    public function syncToElasticsearch(?bool $forceRefresh = null, ?array $only = null): void
     {
         if ($forceRefresh === null) {
-            $forceRefresh = $this->getElasticRefreshState();
+            $forceRefresh = $this->getElasticsearchRefreshState();
         }
 
         // If only specific keys were requested for syncing...
