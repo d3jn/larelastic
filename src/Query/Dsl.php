@@ -4,9 +4,14 @@ namespace D3jn\Larelastic\Query;
 
 use D3jn\Larelastic\Contracts\Models\Searchable;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Traits\Macroable;
 
 class Dsl extends Clause
 {
+    use Macroable {
+        __call as macroCall;
+    }
+
     /**
      * Builder that wraps over this instance.
      *
@@ -25,6 +30,23 @@ class Dsl extends Clause
         $this->builder = $builder;
 
         parent::__construct($parent);
+    }
+
+    /**
+     * Handle dynamic method calls.
+     *
+     * @param string $name
+     * @param array  $arguments
+     *
+     * @return \D3jn\Larelastic\Query\Clause
+     */
+    public function __call(string $name, array $arguments)
+    {
+        if (static::hasMacro($name)) {
+            return $this->macroCall($name, $arguments);
+        }
+
+        return parent::__call($name, $arguments);
     }
 
     /**
