@@ -45,7 +45,7 @@ interface Searchable
      *
      * @return mixed
      */
-    public function getElasticRefreshState();
+    public function getElasticsearchRefreshState();
 
     /**
      * Get highlight match for field if present within elastic data for this
@@ -120,7 +120,7 @@ interface Searchable
      *
      * @param bool $refresh
      */
-    public function setElasticRefreshState(bool $refresh): void;
+    public function setElasticsearchRefreshState(bool $refresh): void;
 
     /**
      * Sync (create or update) searchable entity to Elasticsearch index.
