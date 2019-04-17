@@ -141,15 +141,15 @@ class Builder
      */
     public function find(string $id): ?Searchable
     {
-        $params = $this->getCommonParams();
+        $params = $this->getCommonParams(true);
         $params['id'] = $id;
 
         try {
-            $result = $this->client->get($params);
-            $searchableId = $this->source->getPrimary($result);
+            $this->lastResult = $this->client->get($params);
+            $searchableId = $this->source->getPrimary($this->lastResult);
 
-            $searchable = $this->source->getById($searchableID);
-            $searchable->setElasticsearchData($result);
+            $searchable = $this->source->getById($searchableId);
+            $searchable->setElasticsearchData($this->lastResult);
 
             return $searchable;
         } catch (\Elasticsearch\Common\Exceptions\Missing404Exception $e) {
@@ -430,16 +430,18 @@ class Builder
     /**
      * Get array of common parameters for elasticsearch request.
      *
+     * @param bool $omitBody
+     *
      * @return array
      */
-    protected function getCommonParams(): array
+    protected function getCommonParams(bool $omitBody = false): array
     {
         $default = [
             'index' => $this->source->getSearchIndex(),
             'type' => $this->source->getSearchType()
         ];
 
-        if ($this->requestRaw !== null) {
+        if (! $omitBody && $this->requestRaw !== null) {
             $default['body'] = $this->requestRaw;
         }
 
