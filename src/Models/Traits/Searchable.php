@@ -187,7 +187,7 @@ trait Searchable
         $result = [];
         foreach ($searchArray as $key => $value) {
             if ($only === null || in_array($key, $only)) {
-                $result[$key] = $value instanceof Closure ? $value() : $value;
+                $result[$key] = $value instanceof Closure ? $value($this) : $value;
             }
         }
 
