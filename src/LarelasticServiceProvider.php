@@ -3,11 +3,14 @@
 namespace D3jn\Larelastic;
 
 use D3jn\Larelastic\Console\Commands\IndexCommand;
+use D3jn\Larelastic\Events\BuilderElasticsearchRequestExecuted;
 use D3jn\Larelastic\Query\DefaultLogger;
 use D3jn\Larelastic\Resolvers\ConfigIndexResolver;
 use Elasticsearch\ClientBuilder;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 
 class LarelasticServiceProvider extends ServiceProvider
@@ -25,8 +28,14 @@ class LarelasticServiceProvider extends ServiceProvider
         $this->commands([IndexCommand::class]);
 
         // Logging.
-        if (config('larelastic.enabled', false)) {
+        if (config('larelastic.logging.enabled', false)) {
             // Register event listeners.
+            Event::listen('D3jn\Larelastic\Events\BuilderElasticsearchRequestExecuted', function (BuilderElasticsearchRequestExecuted $event) {
+                Log::channel(config('larelastic.logging.channel', null))->info(
+                    'Builder Elasticsearch request executed!',
+                    ['parameters' => $event->parameters, 'result' => $event->result]
+                );
+            });
         }
     }
 

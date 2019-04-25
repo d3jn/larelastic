@@ -2,7 +2,7 @@
 
 namespace D3jn\Larelastic\Events;
 
-class ElasticsearchBuilderRequestExecuted
+class BuilderElasticsearchRequestExecuted
 {
     /**
      * Parameters of Elasticsearch request.

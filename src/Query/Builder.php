@@ -3,7 +3,7 @@
 namespace D3jn\Larelastic\Query;
 
 use D3jn\Larelastic\Contracts\Models\Searchable;
-use D3jn\Larelastic\Events\ElasticsearchBuilderRequestExecuted;
+use D3jn\Larelastic\Events\BuilderElasticsearchRequestExecuted;
 use D3jn\Larelastic\Exceptions\LarelasticException;
 use D3jn\Larelastic\Query\Traits\HasDslHelpers;
 use Elasticsearch\Client;
@@ -381,7 +381,7 @@ class Builder
         $parameters = array_merge($builderParams, $parameters);
 
         $this->lastResult = $this->client->search($parameters);
-        event(new ElasticsearchBuilderRequestExecuted($parameters, $this->lastResult));
+        event(new BuilderElasticsearchRequestExecuted($parameters, $this->lastResult));
 
         return $this->lastResult;
     }
