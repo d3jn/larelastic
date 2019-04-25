@@ -78,6 +78,5 @@ return [
     'logging' => [
         'enabled' => env('LARELASTIC_LOGGING_ENABLED', false),
         'channel' => env('LOG_CHANNEL', null),
-        'skip_sync_queries' => true,
     ]
 ];

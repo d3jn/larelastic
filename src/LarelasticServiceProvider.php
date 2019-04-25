@@ -23,6 +23,11 @@ class LarelasticServiceProvider extends ServiceProvider
         ]);
 
         $this->commands([IndexCommand::class]);
+
+        // Logging.
+        if (config('larelastic.enabled', false)) {
+            // Register event listeners.
+        }
     }
 
     /**

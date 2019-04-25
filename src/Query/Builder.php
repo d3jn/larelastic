@@ -3,6 +3,7 @@
 namespace D3jn\Larelastic\Query;
 
 use D3jn\Larelastic\Contracts\Models\Searchable;
+use D3jn\Larelastic\Events\ElasticsearchBuilderRequestExecuted;
 use D3jn\Larelastic\Exceptions\LarelasticException;
 use D3jn\Larelastic\Query\Traits\HasDslHelpers;
 use Elasticsearch\Client;
@@ -120,14 +121,14 @@ class Builder
      */
     public function count(): int
     {
-        $params = $this->getCommonParams();
+        $parameters = $this->getCommonParams();
 
-        $this->injectDslParameters($params);
+        $this->injectDslParameters($parameters);
 
         // Ommit the search results.
-        $params['size'] = 0;
+        $parameters['size'] = 0;
 
-        $result = $this->client->search($params);
+        $result = $this->client->search($parameters);
 
         return (int) $result['hits']['total'];
     }
@@ -141,11 +142,11 @@ class Builder
      */
     public function find(string $id): ?Searchable
     {
-        $params = $this->getCommonParams(true);
-        $params['id'] = $id;
+        $parameters = $this->getCommonParams(true);
+        $parameters['id'] = $id;
 
         try {
-            $this->lastResult = $this->client->get($params);
+            $this->lastResult = $this->client->get($parameters);
             $searchableId = $this->source->getPrimary($this->lastResult);
 
             $searchable = $this->source->getById($searchableId);
@@ -288,13 +289,13 @@ class Builder
     /**
      * Highlight specified fields in the request by raw array of parameters.
      *
-     * @param array $params
+     * @param array $parameters
      *
      * @return \D3jn\Larelastic\Query\Builder
      */
-    public function highlightRaw(array $params): Builder
+    public function highlightRaw(array $parameters): Builder
     {
-        $this->highlightRaw = $params;
+        $this->highlightRaw = $parameters;
 
         return $this;
     }
@@ -363,11 +364,11 @@ class Builder
     /**
      * Get raw array result for query from this builder.
      *
-     * @param array $params
+     * @param array $parameters
      *
      * @return array
      */
-    public function raw(array $params = []): array
+    public function raw(array $parameters = []): array
     {
         $builderParams = $this->getCommonParams();
 
@@ -377,9 +378,12 @@ class Builder
         $this->injectHighlightParameters($builderParams);
 
         // Priority is given to the parameters passed here directly (if there are any).
-        $params = array_merge($builderParams, $params);
+        $parameters = array_merge($builderParams, $parameters);
 
-        return $this->lastResult = $this->client->search($params);
+        $this->lastResult = $this->client->search($parameters);
+        event(new ElasticsearchBuilderRequestExecuted($parameters, $this->lastResult));
+
+        return $this->lastResult;
     }
 
     /**
@@ -451,39 +455,39 @@ class Builder
     /**
      * Inject DSL builder body parameters to request params array.
      *
-     * @param array &$params
+     * @param array &$parameters
      */
-    protected function injectDslParameters(array &$params)
+    protected function injectDslParameters(array &$parameters)
     {
         if ($this->dsl !== null) {
-            $params['body'] = $this->dsl->toArray();
+            $parameters['body'] = $this->dsl->toArray();
         }
     }
 
     /**
      * Inject highlight query builder parameters to request params array.
      *
-     * @param array &$params
+     * @param array &$parameters
      */
-    protected function injectHighlightParameters(array &$params)
+    protected function injectHighlightParameters(array &$parameters)
     {
         if ($this->highlightRaw !== null) {
-            $params['body']['highlight'] = $this->highlightRaw;
+            $parameters['body']['highlight'] = $this->highlightRaw;
         }
     }
 
     /**
      * Inject limit/offset query builder parameters to request params array.
      *
-     * @param array &$params
+     * @param array &$parameters
      */
-    protected function injectPaginationParameters(array &$params)
+    protected function injectPaginationParameters(array &$parameters)
     {
         if ($this->limit !== null) {
-            $params['body']['size'] = $this->limit;
+            $parameters['body']['size'] = $this->limit;
 
             if ($this->offset !== null) {
-                $params['body']['from'] = $this->offset;
+                $parameters['body']['from'] = $this->offset;
             }
         }
     }
@@ -491,12 +495,12 @@ class Builder
     /**
      * Inject query builder sort parameters to request params array.
      *
-     * @param array &$params
+     * @param array &$parameters
      */
-    protected function injectSortParameters(array &$params)
+    protected function injectSortParameters(array &$parameters)
     {
         if (! empty($this->orderBy)) {
-            $params['body']['sort'] = $this->orderBy;
+            $parameters['body']['sort'] = $this->orderBy;
         }
     }
 }
