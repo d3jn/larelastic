@@ -40,6 +40,10 @@ class SearchableObserver
      */
     public function restore(Searchable $entity): void
     {
+        if ($this->shouldBeOmittedFromElasticsearch($entity)) {
+            return;
+        }
+
         $entity->syncToElasticsearch();
     }
 
@@ -50,12 +54,32 @@ class SearchableObserver
      */
     public function saved(Searchable $entity): void
     {
+        if ($this->shouldBeOmittedFromElasticsearch($entity)) {
+            return;
+        }
+
         // Trashed models shouldn't exist in our index, so we simply ignore save event for them.
         if ($this->usesSoftDeleting($entity) && $entity->trashed()) {
             return;
         }
 
         $entity->syncToElasticsearch();
+    }
+
+    /**
+     * Check if model should be omitted from Elasticsearch.
+     *
+     * @param \D3jn\Larelastic\Contracts\Models\Searchable $entity
+     *
+     * @return bool
+     */
+    protected function shouldBeOmittedFromElasticsearch(Searchable $entity): bool
+    {
+        if (method_exists($entity, 'shouldBeOmittedFromElasticsearch')) {
+            return $entity->shouldBeOmittedFromElasticsearch();
+        }
+
+        return false;
     }
 
     /**
