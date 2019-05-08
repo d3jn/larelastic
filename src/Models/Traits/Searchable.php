@@ -4,6 +4,7 @@ namespace D3jn\Larelastic\Models\Traits;
 
 use Closure;
 use D3jn\Larelastic\Models\Observers\SearchableObserver;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
 
@@ -99,15 +100,21 @@ trait Searchable
     }
 
     /**
-     * Get attribute values from Elasticsearch version of this instance.
+     * Get array of attribute values or single value by key from Elasticsearch result version of this instance.
      *
-     * Returns null if Elasticsearch counterpart wasn't assigned to this
-     * entity.
+     * Returns null if Elasticsearch counterpart wasn't assigned to this entity.
      *
-     * @return array|null
+     * @param string|null $key
+     * @param mixed       $default
+     *
+     * @return mixed
      */
-    public function getElasticsearchData(): ?array
+    public function getElasticsearchData(?string $key = null, $default = null)
     {
+        if ($key !== null) {
+            return Arr::get($this->elasticData, $key, $default);
+        }
+
         return $this->elasticData;
     }
 

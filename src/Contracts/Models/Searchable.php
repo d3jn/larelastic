@@ -31,14 +31,16 @@ interface Searchable
     public function getByIds(array $ids, array $relations = []): \Illuminate\Support\Collection;
 
     /**
-     * Get attribute values from Elasticsearch version of this instance.
+     * Get array of attribute values or single value by key from Elasticsearch result version of this instance.
      *
-     * Returns null if Elasticsearch counterpart wasn't assigned to this
-     * entity.
+     * Returns null if Elasticsearch counterpart wasn't assigned to this entity.
      *
-     * @return array|null
+     * @param string|null $key
+     * @param mixed       $default
+     *
+     * @return mixed
      */
-    public function getElasticsearchData(): ?array;
+    public function getElasticsearchData(?string $key = null, $default = null);
 
     /**
      * Get refresh option value for sync queries.
