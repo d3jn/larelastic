@@ -63,6 +63,6 @@ class LarelasticServiceProvider extends ServiceProvider
             return new ConfigIndexResolver;
         });
 
-        $this->app->bind('larelastic', Larelastic::class);
+        $this->app->bind('larelastic', BuilderFactory::class);
     }
 }

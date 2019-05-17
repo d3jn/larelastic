@@ -9,10 +9,10 @@ use D3jn\Larelastic\Query\Builder;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
 
-class Larelastic
+class BuilderFactory
 {
     /**
-     * Try resolving unexistant method as new query object or type.
+     * Try resolving unexistant method as new query builder for type.
      *
      * @param string $name
      * @param array  $arguments
