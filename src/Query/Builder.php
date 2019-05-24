@@ -134,6 +134,23 @@ class Builder
     }
 
     /**
+     * Get score explanation for a query and document by specified id.
+     *
+     * @param string $id
+     *
+     * @return array
+     */
+    public function explain(string $id): array
+    {
+        $parameters = $this->getCommonParams();
+        $parameters['id'] = $id;
+
+        $this->injectDslParameters($parameters);
+
+        return $this->client->explain($parameters);
+    }
+
+    /**
      * Get searchable instance by specified id or null if not found.
      *
      * @param string $id
@@ -460,7 +477,7 @@ class Builder
     protected function injectDslParameters(array &$parameters)
     {
         if ($this->dsl !== null) {
-            $parameters['body'] = $this->dsl->toArray();
+            $parameters['body'] = array_merge($parameters['body'] ?? [], $this->dsl->toArray());
         }
     }
 
