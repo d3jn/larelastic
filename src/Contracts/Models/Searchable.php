@@ -113,6 +113,14 @@ interface Searchable
     public function getTypeMapping(): array;
 
     /**
+     * Get index settings for this searchable entity. Returns empty array if no settings
+     * should be specified for the Elasticsearch index.
+     *
+     * @return array
+     */
+    public function getTypeSettings(): array;
+
+    /**
      * Attach attribute values from Elasticsearch version of this instance.
      */
     public function setElasticsearchData(array $attributes): void;

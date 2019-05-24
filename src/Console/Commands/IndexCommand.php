@@ -60,11 +60,15 @@ class IndexCommand extends Command
             $index = $entity->getSearchIndex();
             $type = $entity->getSearchType();
             $mapping = $entity->getTypeMapping();
+            $settings = $entity->getTypeSettings();
 
             // Placing it all in more convinient structure.
             $indices[$index]['types'][$type] = $type;
             if (! empty($mapping)) {
                 $indices[$index]['mappings'][$type] = $mapping;
+            }
+            if (! empty($settings)) {
+                $indices[$index]['settings'] = $settings;
             }
             $typeEntities[$class] = $entity;
         }
@@ -97,6 +101,10 @@ class IndexCommand extends Command
             if (! empty($index['mappings'])) {
                 $data['body']['mappings'] = $index['mappings'];
             }
+            if (! empty($index['settings'])) {
+                $data['body']['settings'] = $index['settings'];
+            }
+
             $this->client->indices()->create($data);
         }
     }

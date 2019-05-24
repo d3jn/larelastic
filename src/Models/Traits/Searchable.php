@@ -259,6 +259,21 @@ trait Searchable
     }
 
     /**
+     * Get type settings for this searchable entity. Returns empty array if no settings
+     * should be specified for the Elasticsearch index.
+     *
+     * @return array
+     */
+    public function getTypeSettings(): array
+    {
+        if (property_exists($this, 'typeSettings')) {
+            return $this->typeSettings;
+        }
+
+        return [];
+    }
+
+    /**
      * Attach attribute values from Elasticsearch version of this instance.
      */
     public function setElasticsearchData(array $attributes): void
