@@ -5,7 +5,7 @@ namespace D3jn\Larelastic\Contracts\Models;
 interface Searchable
 {
     /**
-     * Delete model from Elasticsearch index.
+     * Delete document from Elasticsearch index.
      *
      * @param bool|null $forceRefresh
      */
@@ -45,29 +45,29 @@ interface Searchable
     /**
      * Get refresh option value for sync queries.
      *
-     * @return mixed
+     * @return bool
      */
-    public function getElasticsearchRefreshState();
+    public function getElasticsearchRefreshState(): bool;
 
     /**
      * Get highlight match for field if present within elastic data for this
-     * searchable entity.
+     * document.
      *
      * If $field is not specified then array of all existing highlighted
      * matches will be returned.
      *
      * @param string|null $field
      *
-     * @return mixed
+     * @return array
      */
-    public function getHighlight(?string $field);
+    public function getHighlight(?string $field = null): array;
 
     /**
      * Get the number of Searchables to return per page.
      *
      * @return int
      */
-    public function getPerPage();
+    public function getPageSize(): int;
 
     /**
      * Get primary value from Elasticsearch attributes of this instance.
@@ -77,7 +77,7 @@ interface Searchable
     public function getPrimary(array $attributes);
 
     /**
-     * Get searchable field values for this entity.
+     * Get document field values.
      *
      * @return array
      */
@@ -98,6 +98,13 @@ interface Searchable
     public function getSearchKey(): string;
 
     /**
+     * Return primary key name for searchable entity.
+     *
+     * @return string
+     */
+    public function getSearchKeyName(): string;
+
+    /**
      * Return index name for this searchable entity.
      *
      * @return string
@@ -105,7 +112,7 @@ interface Searchable
     public function getSearchType(): string;
 
     /**
-     * Get mapping for this searchable entity. Returns empty array if no mapping
+     * Get type mapping for this document. Returns empty array if no mapping
      * should be specified for the type in Elasticsearch index.
      *
      * @return array
@@ -113,7 +120,7 @@ interface Searchable
     public function getTypeMapping(): array;
 
     /**
-     * Get index settings for this searchable entity. Returns empty array if no settings
+     * Get type settings for this document. Returns empty array if no settings
      * should be specified for the Elasticsearch index.
      *
      * @return array
@@ -133,7 +140,7 @@ interface Searchable
     public function setElasticsearchRefreshState(bool $refresh): void;
 
     /**
-     * Sync (create or update) searchable entity to Elasticsearch index.
+     * Sync (create or update) document to Elasticsearch index.
      *
      * @param bool|null  $forceRefresh
      * @param array|null $only

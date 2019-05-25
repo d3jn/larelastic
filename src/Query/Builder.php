@@ -105,7 +105,7 @@ class Builder
      * @param string $field
      * @param string $rule
      *
-     * @return \D3jn\Larelastic\Query\Builder
+     * @return $this
      */
     public function addOrderBy(string $field, string $rule = 'desc'): Builder
     {
@@ -121,7 +121,7 @@ class Builder
      */
     public function count(): int
     {
-        $parameters = $this->getCommonParams();
+        $parameters = $this->getCommonParams(false);
 
         $this->injectDslParameters($parameters);
 
@@ -142,7 +142,7 @@ class Builder
      */
     public function explain(string $id): array
     {
-        $parameters = $this->getCommonParams();
+        $parameters = $this->getCommonParams(false);
         $parameters['id'] = $id;
 
         $this->injectDslParameters($parameters);
@@ -308,7 +308,7 @@ class Builder
      *
      * @param array $parameters
      *
-     * @return \D3jn\Larelastic\Query\Builder
+     * @return $this
      */
     public function highlightRaw(array $parameters): Builder
     {
@@ -322,7 +322,7 @@ class Builder
      *
      * @param int limit
      *
-     * @return \D3jn\Larelastic\Query\Builder
+     * @return $this
      */
     public function limit(int $limit): Builder
     {
@@ -341,7 +341,7 @@ class Builder
      *
      * @param int offset
      *
-     * @return \D3jn\Larelastic\Query\Builder
+     * @return $this
      */
     public function offset(int $offset): Builder
     {
@@ -363,7 +363,7 @@ class Builder
      */
     public function paginate(?int $perPage = null, string $pageName = 'page', ?int $currentPage = null): LengthAwarePaginator
     {
-        $perPage = $perPage ?: $this->source->getPerPage();
+        $perPage = $perPage ?: $this->source->getPageSize();
         $currentPage = $currentPage ?: Paginator::resolveCurrentPage($pageName);
         $options = [
             'path' => Paginator::resolveCurrentPath(),
@@ -387,7 +387,7 @@ class Builder
      */
     public function raw(array $parameters = []): array
     {
-        $builderParams = $this->getCommonParams();
+        $builderParams = $this->getCommonParams(false);
 
         $this->injectDslParameters($builderParams);
         $this->injectSortParameters($builderParams);
@@ -411,7 +411,7 @@ class Builder
      *
      * @param array $request
      *
-     * @return \D3jn\Larelastic\Query\Builder
+     * @return $this
      */
     public function requestRaw(array $request): Builder
     {
@@ -425,7 +425,7 @@ class Builder
      *
      * @param string ...$relations
      *
-     * @return \D3jn\Larelastic\Query\Builder
+     * @return $this
      */
     public function with(string ...$relations)
     {
@@ -439,7 +439,7 @@ class Builder
      *
      * @param string ...$relations
      *
-     * @return \D3jn\Larelastic\Query\Builder
+     * @return $this
      */
     public function without(string ...$relations)
     {

@@ -3,15 +3,10 @@
 namespace D3jn\Larelastic\Models\Traits;
 
 use Closure;
-use D3jn\Larelastic\Models\Observers\SearchableObserver;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Config;
 
-/**
- * This trait contains default Eloquent model implementation of
- * D3jn\Larelastic\Contracts\Models\Searchable contract.
- */
 trait Searchable
 {
     /**
@@ -29,17 +24,7 @@ trait Searchable
     protected $elasticData = null;
 
     /**
-     * Attach our observer to searchable entities using this trait.
-     */
-    public static function bootSearchable()
-    {
-        if (Config::get('larelastic.observe_searchable_models', true)) {
-            static::observe(SearchableObserver::class);
-        }
-    }
-
-    /**
-     * Delete model from Elasticsearch index.
+     * Delete document from Elasticsearch index.
      *
      * @param bool|null $forceRefresh
      */
@@ -55,48 +40,6 @@ trait Searchable
             'id' => $this->getSearchKey(),
             'refresh' => $forceRefresh
         ]);
-    }
-
-    /**
-     * Get searchable instance by specified id or null if not found.
-     *
-     * @param mixed $id
-     *
-     * @return \D3jn\Larelastic\Contracts\Models\Searchable|null
-     */
-    public function getById($id): ?\D3jn\Larelastic\Contracts\Models\Searchable
-    {
-        return (new static)->find($id);
-    }
-
-    /**
-     * Get collection searchable instances by specified ids.
-     *
-     * @param array $ids
-     * @param array $relations
-     *
-     * @return \Illuminate\Support\Collection
-     */
-    public function getByIds(array $ids, array $relations = []): \Illuminate\Support\Collection
-    {
-        $query = static::query();
-
-        if (! empty($relations)) {
-            $query->with($relations);
-        }
-
-        if ($this->keyType = 'string') {
-            // Making sure string keys are escaped properly.
-            $orderById = implode(', ', array_map(function ($value) {
-                return $this->getConnection()->getPdo()->quote($value);
-            }, $ids));
-        } else {
-            $orderById = implode(', ', $ids);
-        }
-
-        return $query->whereIn('id', $ids)
-            ->orderByRaw("field(id, $orderById) asc")
-            ->get();
     }
 
     /**
@@ -138,30 +81,26 @@ trait Searchable
 
     /**
      * Get highlight match for field if present within Elasticsearch data for this
-     * searchable entity.
+     * document.
      *
      * If $field is not specified then collection of all existing highlighted
      * matches will be returned.
      *
      * @param string|null $field
      *
-     * @return \Illuminate\Support\Collection
+     * @return array
      */
-    public function getHighlight(?string $field): \Illuminate\Support\Collection
+    public function getHighlight(?string $field = null)
     {
-        if (! isset($field)) {
-            return isset($this->elasticData['highlight'])
-                ? collect($this->elasticData['highlight'])
-                : collect();
+        if ($field === null) {
+            return $this->elasticData['highlight'] ?? [];
         }
 
-        return isset($this->elasticData['highlight'][$field])
-            ? collect($this->elasticData['highlight'][$field])
-            : collect();
+        return $this->elasticData['highlight'][$field] ?? [];
     }
 
     /**
-     * Get primary value from Elasticsearch attributes of this instance.
+     * Get primary value from Elasticsearch attributes.
      *
      * @return mixed
      */
@@ -171,17 +110,7 @@ trait Searchable
     }
 
     /**
-     * Get all searchable entities query.
-     *
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function getSearchableEntitiesQuery(): \Illuminate\Database\Eloquent\Builder
-    {
-        return (new static)->orderBy($this->getKeyName());
-    }
-
-    /**
-     * Get searchable field values for this entity.
+     * Get document field values.
      *
      * @param array|null $only
      *
@@ -199,8 +128,8 @@ trait Searchable
         }
 
         // Making sure id is always present to identify the record.
-        if (! isset($result[$this->getKeyName()])) {
-            $result[$this->getKeyName()] = $this->getKey();
+        if (! isset($result[$this->getSearchKeyName()])) {
+            $result[$this->getSearchKeyName()] = $this->getSearchKey();
         }
 
         return $result;
@@ -220,31 +149,7 @@ trait Searchable
     }
 
     /**
-     * Return primary key for searchable entity.
-     *
-     * @return string
-     */
-    public function getSearchKey(): string
-    {
-        return $this->getKey();
-    }
-
-    /**
-     * Return index name for this searchable entity.
-     *
-     * @return string
-     */
-    public function getSearchType(): string
-    {
-        if (property_exists($this, 'searchType')) {
-            return $this->searchType;
-        }
-
-        return $this->getTable();
-    }
-
-    /**
-     * Get mapping for this searchable entity. Returns empty array if no mapping
+     * Get type mapping for this document. Returns empty array if no mapping
      * should be specified for the type in Elasticsearch index.
      *
      * @return array
@@ -259,7 +164,7 @@ trait Searchable
     }
 
     /**
-     * Get type settings for this searchable entity. Returns empty array if no settings
+     * Get type settings for this document. Returns empty array if no settings
      * should be specified for the Elasticsearch index.
      *
      * @return array
@@ -296,7 +201,7 @@ trait Searchable
     }
 
     /**
-     * Sync (create or update) searchable entity to Elasticsearch index.
+     * Sync (create or update) document to Elasticsearch index.
      *
      * @param bool|null  $forceRefresh
      * @param array|null $only
@@ -329,34 +234,5 @@ trait Searchable
                 'refresh' => $forceRefresh
             ]);
         }
-    }
-
-    /**
-     * Pass through searchable entities of this type with a given callback.
-     *
-     * @param Callable $callback
-     */
-    public function walkSearchableEntities(callable $callback)
-    {
-        $query = $this->getSearchableEntitiesQuery();
-        if (property_exists($this, 'walkSearchableWith') && ! empty($this->walkSearchableWith)) {
-            $query->with($this->walkSearchableWith);
-        }
-
-        $query->chunk(100, function ($entities) use ($callback) {
-            foreach ($entities as $entity) {
-                $callback($entity);
-            }
-        });
-    }
-
-    /**
-     * Serialize current model instance into array for it's type.
-     *
-     * @return array
-     */
-    protected function toSearchArray(): array
-    {
-        return $this->toArray();
     }
 }
