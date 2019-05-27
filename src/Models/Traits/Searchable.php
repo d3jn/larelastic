@@ -90,7 +90,7 @@ trait Searchable
      *
      * @return array
      */
-    public function getHighlight(?string $field = null)
+    public function getHighlight(?string $field = null): array
     {
         if ($field === null) {
             return $this->elasticData['highlight'] ?? [];
