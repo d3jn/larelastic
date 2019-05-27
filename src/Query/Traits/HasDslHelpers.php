@@ -26,4 +26,16 @@ trait HasDslHelpers
 
         return $this->dsl;
     }
+
+    /**
+     * Inject DSL builder body parameters to request params array.
+     *
+     * @param array &$parameters
+     */
+    protected function injectDslParameters(array &$parameters)
+    {
+        if ($this->dsl !== null) {
+            $parameters['body'] = array_merge($parameters['body'] ?? [], $this->dsl->toArray());
+        }
+    }
 }
