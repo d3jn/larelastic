@@ -59,6 +59,20 @@ trait IntegratesWithEloquent
     }
 
     /**
+     * Get partial update map for this searchable fields.
+     *
+     * @return array
+     */
+    public function getPartialUpdateMapForElasticsearch(): array
+    {
+        if (property_exists($this, 'partialUpdateMap')) {
+            return $this->partialUpdateMap;
+        }
+
+        return [];
+    }
+
+    /**
      * Get all searchable entities query.
      *
      * @return \Illuminate\Database\Eloquent\Builder
