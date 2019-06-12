@@ -32,9 +32,6 @@ php artisan vendor:publish --provider="D3jn\Larelastic\LarelasticServiceProvider
 
 Now you can proceed with configuring this package for your needs.
 
-## Configuration
-TODO
-
 ## Built With
 * [Laravel](http://laravel.com) - The web framework used
 * [Elasticsearch PHP API](https://www.elastic.co/guide/en/elasticsearch/client/php-api/current/index.html) - Library for elasticsearch PHP integration
