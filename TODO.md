@@ -3,8 +3,8 @@
 ...
 
 ## Minor changes (non-breaking features)
+* Add custom exception render in debug mode.
 * Add SQL-like query generator.
-* Add ability to map Eloquent attribute names to Elasticsearch document fields so that `SearchableObserver` can trigger partial updates based off "dirtiness" of model attributes.
 * Add time elapsed for logging event(s).
 * Improve exceptions.
 * Select strict naming convention and rename stuff.
