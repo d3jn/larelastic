@@ -3,9 +3,11 @@
 namespace D3jn\Larelastic\Models\Traits;
 
 use Closure;
+use Elasticsearch\Common\Exceptions\Missing404Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Config;
 
 trait Searchable
 {
@@ -34,12 +36,20 @@ trait Searchable
             $forceRefresh = $this->getElasticsearchRefreshState();
         }
 
-        App::make('Elasticsearch\Client')->delete([
-            'index' => $this->getSearchIndex(),
-            'type' => $this->getSearchType(),
-            'id' => $this->getSearchKey(),
-            'refresh' => $forceRefresh
-        ]);
+        try {
+            App::make('Elasticsearch\Client')->delete([
+                'index' => $this->getSearchIndex(),
+                'type' => $this->getSearchType(),
+                'id' => $this->getSearchKey(),
+                'refresh' => $forceRefresh
+            ]);
+        } catch (Missing404Exception $e) {
+            if (Config::get('larelastic.silent_mode')) {
+                report($e);
+            } else {
+                throw $e;
+            }
+        }
     }
 
     /**

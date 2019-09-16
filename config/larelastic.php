@@ -78,5 +78,18 @@ return [
     'logging' => [
         'enabled' => env('LARELASTIC_LOGGING_ENABLED', false),
         'channel' => env('LOG_CHANNEL', null),
-    ]
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Silent mode
+    |--------------------------------------------------------------------------
+    |
+    | If enabled Larelastic won't throw non-critical errors (for example,
+    | when trying to delete non-existing document from index etc), but will
+    | still report them nontheless.
+    |
+    */
+
+    'silent_mode' => false
 ];
