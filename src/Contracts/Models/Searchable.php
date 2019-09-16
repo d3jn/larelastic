@@ -150,7 +150,7 @@ interface Searchable
     /**
      * Pass through all searchable entities of this type with a given callback.
      *
-     * @param Callable $callback
+     * @param callable $callback
      */
     public function walkSearchableEntities(callable $callback);
 }

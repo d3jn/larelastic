@@ -20,7 +20,7 @@ trait HasSqlHelpers
      */
     public function sql(): Sql
     {
-        if ($this->sql === null) {
+        if (null === $this->sql) {
             $this->sql = new Sql($this);
         }
 
@@ -34,7 +34,7 @@ trait HasSqlHelpers
      */
     protected function injectSqlParameters(array &$parameters)
     {
-        if ($this->sql !== null) {
+        if (null !== $this->sql) {
             // TODO.
             $parameters['body'] = [];
         }

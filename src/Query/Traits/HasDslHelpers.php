@@ -20,7 +20,7 @@ trait HasDslHelpers
      */
     public function dsl(): Dsl
     {
-        if ($this->dsl === null) {
+        if (null === $this->dsl) {
             $this->dsl = new Dsl($this, null);
         }
 
@@ -34,7 +34,7 @@ trait HasDslHelpers
      */
     protected function injectDslParameters(array &$parameters)
     {
-        if ($this->dsl !== null) {
+        if (null !== $this->dsl) {
             $parameters['body'] = array_merge($parameters['body'] ?? [], $this->dsl->toArray());
         }
     }

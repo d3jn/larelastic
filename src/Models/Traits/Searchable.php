@@ -32,7 +32,7 @@ trait Searchable
      */
     public function deleteFromElasticsearch(?bool $forceRefresh = null): void
     {
-        if ($forceRefresh === null) {
+        if (null === $forceRefresh) {
             $forceRefresh = $this->getElasticsearchRefreshState();
         }
 
@@ -41,7 +41,7 @@ trait Searchable
                 'index' => $this->getSearchIndex(),
                 'type' => $this->getSearchType(),
                 'id' => $this->getSearchKey(),
-                'refresh' => $forceRefresh
+                'refresh' => $forceRefresh,
             ]);
         } catch (Missing404Exception $e) {
             if (Config::get('larelastic.silent_mode')) {
@@ -64,7 +64,7 @@ trait Searchable
      */
     public function getElasticsearchData(?string $key = null, $default = null)
     {
-        if ($key !== null) {
+        if (null !== $key) {
             return Arr::get($this->elasticData, $key, $default);
         }
 
@@ -102,7 +102,7 @@ trait Searchable
      */
     public function getHighlight(?string $field = null): array
     {
-        if ($field === null) {
+        if (null === $field) {
             return $this->elasticData['highlight'] ?? [];
         }
 
@@ -132,13 +132,13 @@ trait Searchable
 
         $result = [];
         foreach ($searchArray as $key => $value) {
-            if ($only === null || in_array($key, $only)) {
+            if (null === $only || in_array($key, $only)) {
                 $result[$key] = $value instanceof Closure ? $value($this) : $value;
             }
         }
 
         // Making sure id is always present to identify the record.
-        if (! isset($result[$this->getSearchKeyName()])) {
+        if (!isset($result[$this->getSearchKeyName()])) {
             $result[$this->getSearchKeyName()] = $this->getSearchKey();
         }
 
@@ -218,21 +218,21 @@ trait Searchable
      */
     public function syncToElasticsearch(?bool $forceRefresh = null, ?array $only = null): void
     {
-        if ($forceRefresh === null) {
+        if (null === $forceRefresh) {
             $forceRefresh = $this->getElasticsearchRefreshState();
         }
 
         // If only specific keys were requested for syncing...
-        if ($only !== null) {
+        if (null !== $only) {
             // ...then we issue partial update.
             App::make('Elasticsearch\Client')->update([
                 'index' => $this->getSearchIndex(),
                 'type' => $this->getSearchType(),
                 'id' => $this->getSearchKey(),
                 'body' => [
-                    'doc' => $this->getSearchAttributes($only)
+                    'doc' => $this->getSearchAttributes($only),
                 ],
-                'refresh' => $forceRefresh
+                'refresh' => $forceRefresh,
             ]);
         } else {
             // Otherwise we fully reindex model's respective document.
@@ -241,7 +241,7 @@ trait Searchable
                 'type' => $this->getSearchType(),
                 'id' => $this->getSearchKey(),
                 'body' => $this->getSearchAttributes($only),
-                'refresh' => $forceRefresh
+                'refresh' => $forceRefresh,
             ]);
         }
     }

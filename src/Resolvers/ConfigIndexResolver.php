@@ -25,7 +25,7 @@ class ConfigIndexResolver implements IndexResolver
         }
 
         return App::environment('testing')
-            ? 'testing_' . $index
+            ? 'testing_'.$index
             : $index;
     }
 }

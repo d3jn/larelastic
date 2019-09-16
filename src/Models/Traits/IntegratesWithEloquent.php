@@ -15,7 +15,7 @@ trait IntegratesWithEloquent
      */
     public function getById($id): ?\D3jn\Larelastic\Contracts\Models\Searchable
     {
-        return (new static)->find($id);
+        return (new static())->find($id);
     }
 
     /**
@@ -30,7 +30,7 @@ trait IntegratesWithEloquent
     {
         $query = static::query();
 
-        if (! empty($relations)) {
+        if (!empty($relations)) {
             $query->with($relations);
         }
 
@@ -79,7 +79,7 @@ trait IntegratesWithEloquent
      */
     public function getSearchableEntitiesQuery(): \Illuminate\Database\Eloquent\Builder
     {
-        return (new static)->orderBy($this->getKeyName());
+        return (new static())->orderBy($this->getKeyName());
     }
 
     /**
@@ -119,12 +119,12 @@ trait IntegratesWithEloquent
     /**
      * Pass through searchable entities of this type with a given callback.
      *
-     * @param Callable $callback
+     * @param callable $callback
      */
     public function walkSearchableEntities(callable $callback)
     {
         $query = $this->getSearchableEntitiesQuery();
-        if (property_exists($this, 'walkSearchableWith') && ! empty($this->walkSearchableWith)) {
+        if (property_exists($this, 'walkSearchableWith') && !empty($this->walkSearchableWith)) {
             $query->with($this->walkSearchableWith);
         }
 

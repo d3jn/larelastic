@@ -7,7 +7,8 @@ use Illuminate\Support\Facades\Config;
 
 trait EloquentSearchable
 {
-    use Searchable, IntegratesWithEloquent;
+    use Searchable;
+    use IntegratesWithEloquent;
 
     /**
      * Attach our observer to searchable entities using this trait.

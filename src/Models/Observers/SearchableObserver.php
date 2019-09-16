@@ -112,7 +112,7 @@ class SearchableObserver
      */
     protected function tryPartialUpdate(Searchable $entity): bool
     {
-        if (! method_exists($entity, 'getPartialUpdateMapForElasticsearch')) {
+        if (!method_exists($entity, 'getPartialUpdateMapForElasticsearch')) {
             return false;
         }
 

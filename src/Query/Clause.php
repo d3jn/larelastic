@@ -43,7 +43,7 @@ class Clause
     public function __call(string $name, array $arguments)
     {
         if (empty($arguments)) {
-            if (! array_key_exists($name, $this->parameters)) {
+            if (!array_key_exists($name, $this->parameters)) {
                 throw new BadMethodCallException("Trying to get value of unexisting clause field '%s'!");
             }
 
@@ -81,7 +81,7 @@ class Clause
      */
     public function __get(string $name)
     {
-        if (! isset($this->parameters[$name])) {
+        if (!isset($this->parameters[$name])) {
             $this->parameters[$name] = new Clause($this);
         }
 
@@ -95,7 +95,7 @@ class Clause
      */
     public function end()
     {
-        if ($this->parent === null) {
+        if (null === $this->parent) {
             throw new LogicException('No upper level found! This end() call does nothing.');
         }
 

@@ -16,7 +16,8 @@ use Illuminate\Support\Traits\Macroable;
 
 class Builder
 {
-    use HasDslHelpers, Macroable;
+    use HasDslHelpers;
+    use Macroable;
 
     /**
      * Elasticsearch native PHP client.
@@ -95,7 +96,7 @@ class Builder
         // We initialize our request with simple query to simply match all documents of
         // searchable type.
         $this->requestRaw = [
-            'query' => ['match_all' => (object) []]
+            'query' => ['match_all' => (object) []],
         ];
     }
 
@@ -115,7 +116,7 @@ class Builder
     }
 
     /**
-     * Get count based on formed query
+     * Get count based on formed query.
      *
      * @return int
      */
@@ -205,7 +206,7 @@ class Builder
     {
         $result = $this->raw();
 
-        if ($result['hits']['total'] == 0 || empty($result['hits']['hits'])) {
+        if (0 == $result['hits']['total'] || empty($result['hits']['hits'])) {
             return collect();
         }
 
@@ -232,7 +233,7 @@ class Builder
      */
     public function getLastResultRaw(?string $key = null, $default = null)
     {
-        if ($key !== null) {
+        if (null !== $key) {
             return Arr::get($this->lastResult, $key, $default);
         }
 
@@ -459,10 +460,10 @@ class Builder
     {
         $default = [
             'index' => $this->source->getSearchIndex(),
-            'type' => $this->source->getSearchType()
+            'type' => $this->source->getSearchType(),
         ];
 
-        if (! $omitBody && $this->requestRaw !== null) {
+        if (!$omitBody && null !== $this->requestRaw) {
             $default['body'] = $this->requestRaw;
         }
 
@@ -476,7 +477,7 @@ class Builder
      */
     protected function injectHighlightParameters(array &$parameters)
     {
-        if ($this->highlightRaw !== null) {
+        if (null !== $this->highlightRaw) {
             $parameters['body']['highlight'] = $this->highlightRaw;
         }
     }
@@ -488,10 +489,10 @@ class Builder
      */
     protected function injectPaginationParameters(array &$parameters)
     {
-        if ($this->limit !== null) {
+        if (null !== $this->limit) {
             $parameters['body']['size'] = $this->limit;
 
-            if ($this->offset !== null) {
+            if (null !== $this->offset) {
                 $parameters['body']['from'] = $this->offset;
             }
         }
@@ -504,7 +505,8 @@ class Builder
      */
     protected function injectSortParameters(array &$parameters)
     {
-        if (! empty($this->orderBy)) {
+        if (!empty($this->orderBy)) {
+
             $parameters['body']['sort'] = $this->orderBy;
         }
     }

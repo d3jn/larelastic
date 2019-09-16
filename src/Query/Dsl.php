@@ -83,7 +83,7 @@ class Dsl extends Clause
      */
     public function __get(string $name)
     {
-        if (! isset($this->parameters[$name])) {
+        if (!isset($this->parameters[$name])) {
             $this->parameters[$name] = new Dsl($this->builder, $this);
         }
 
@@ -91,7 +91,7 @@ class Dsl extends Clause
     }
 
     /**
-     * Get count based on formed query
+     * Get count based on formed query.
      *
      * @return int
      */
@@ -107,7 +107,7 @@ class Dsl extends Clause
      */
     public function end()
     {
-        if ($this->parent === null) {
+        if (null === $this->parent) {
             return $this->builder;
         }
 

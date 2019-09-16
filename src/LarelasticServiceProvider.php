@@ -20,9 +20,9 @@ class LarelasticServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $config = App::make('path.config') . DIRECTORY_SEPARATOR . 'larelastic.php';
+        $config = App::make('path.config').DIRECTORY_SEPARATOR.'larelastic.php';
         $this->publishes([
-            __DIR__ . '/../config/larelastic.php' => $config
+            __DIR__.'/../config/larelastic.php' => $config,
         ]);
 
         $this->commands([IndexCommand::class]);
@@ -45,7 +45,7 @@ class LarelasticServiceProvider extends ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(
-            __DIR__ . '/../config/larelastic.php',
+            __DIR__.'/../config/larelastic.php',
             'larelastic'
         );
 
@@ -56,11 +56,11 @@ class LarelasticServiceProvider extends ServiceProvider
         });
 
         $this->app->bind('larelastic.query-logger', function () {
-            return new DefaultLogger;
+            return new DefaultLogger();
         });
 
         $this->app->bind('larelastic.default-index-resolver', function () {
-            return new ConfigIndexResolver;
+            return new ConfigIndexResolver();
         });
 
         $this->app->bind('larelastic', BuilderFactory::class);

@@ -25,19 +25,19 @@ class BuilderFactory
         $source = null;
 
         foreach ($types as $class) {
-            if (! in_array(Searchable::class, class_implements($class))) {
+            if (!in_array(Searchable::class, class_implements($class))) {
                 throw new UnsupportedTypeException(
                     "Class '$class' must implement Searchable contract! Check your types configuration in 'config/larelastic.php'"
                 );
             }
 
-            $entity = new $class;
+            $entity = new $class();
             if ($entity->getSearchType() == $name) {
                 $source = $entity;
             }
         }
 
-        if ($source == null) {
+        if (null == $source) {
             throw new UnknownTypeException(
                 "Can't generate Builder for type '$name' since such a type is not found within Larelastic types configuration!"
             );
