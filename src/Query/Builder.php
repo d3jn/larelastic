@@ -205,7 +205,7 @@ class Builder
     {
         $result = $this->raw();
 
-        if ($result['hits']['total'] == 0) {
+        if ($result['hits']['total'] == 0 || empty($result['hits']['hits'])) {
             return collect();
         }
 
