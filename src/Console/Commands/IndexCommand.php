@@ -180,8 +180,6 @@ class IndexCommand extends Command
 
                     $bulkEntities[] = $searchable->getSearchAttributes();
                     ++$count;
-
-                    $bar->setMessage($class." ($count)");
                 }
 
                 if (!empty($bulkEntities)) {

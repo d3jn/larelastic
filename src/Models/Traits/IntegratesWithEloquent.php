@@ -128,7 +128,7 @@ trait IntegratesWithEloquent
             $query->with($this->walkSearchableWith);
         }
 
-        $query->chunk(100, function ($entities) use ($callback) {
+        $query->chunk(1000, function ($entities) use ($callback) {
             $callback($entities);
         });
     }
