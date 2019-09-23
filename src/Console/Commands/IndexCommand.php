@@ -26,7 +26,7 @@ class IndexCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'larelastic:index {--refresh} {--drop-only} {--no-progress}';
+    protected $signature = 'larelastic:index {--refresh} {--drop-only} {--sync-only} {--no-progress}';
 
     /**
      * Execute the console command.
@@ -35,6 +35,12 @@ class IndexCommand extends Command
      */
     public function handle()
     {
+        if ($this->option('drop-only') && $this->option('sync-only')) {
+            $this->error("Options '--drop-only' and '--sync-only' are mutually exclusive!");
+
+            return;
+        }
+
         // Resolving elasticsearch client.
         $this->client = resolve(Client::class);
 
@@ -45,6 +51,7 @@ class IndexCommand extends Command
         $typeEntities = [];
         $indices = [];
         $typeCount = 0;
+
         foreach ($types as $class) {
             if (!in_array(Searchable::class, class_implements($class))) {
                 $this->error("Class <{$class}> does not implement Searchable contract and will be skipped!");
@@ -78,9 +85,15 @@ class IndexCommand extends Command
             "Successfully found configuration for {$typeCount} types in {$indexCount} indices."
         );
 
-        $this->deleteExistingIndices($indices);
+        if (!$this->option('sync-only')) {
+            $this->deleteExistingIndices($indices);
+        }
+
         if (!$this->option('drop-only')) {
-            $this->createNewIndices($indices);
+            if (!$this->option('sync-only')) {
+                $this->createNewIndices($indices);
+            }
+
             $count = $this->importTypeEntities($typeEntities);
 
             $this->info(PHP_EOL."Reindexing successfully ended! Imported {$count} records in total.");
