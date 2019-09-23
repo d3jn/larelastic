@@ -155,26 +155,33 @@ class IndexCommand extends Command
             $bar->advance();
 
             $bulkEntities = [];
-            $walkCallback = function (Searchable $searchable) use (&$bulkEntities, &$count, $entity) {
-                $bulkEntities[] = [
-                    'index' => [
-                        '_index' => $searchable->getSearchIndex(),
-                        '_type' => $searchable->getSearchType(),
-                        '_id' => $searchable->getSearchKey(),
-                    ],
-                ];
+            $walkCallback = function ($searchables) use (&$bulkEntities, &$count, $entity) {
+                foreach ($searchables as $searchable) {
+                    $bulkEntities[] = [
+                        'index' => [
+                            '_index' => $searchable->getSearchIndex(),
+                            '_type' => $searchable->getSearchType(),
+                            '_id' => $searchable->getSearchKey(),
+                        ],
+                    ];
 
-                $bulkEntities[] = $searchable->getSearchAttributes();
-                ++$count;
+                    $bulkEntities[] = $searchable->getSearchAttributes();
+                    ++$count;
+
+                    $bar->setMessage($class." ($count)");
+                }
+
+                if (!empty($bulkEntities)) {
+                    $this->client->bulk([
+                        'refresh' => $this->option('refresh'),
+                        'body' => $bulkEntities,
+                    ]);
+                }
+
+                $bulkEntities = [];
             };
-            $entity->walkSearchableEntities($walkCallback);
 
-            if (!empty($bulkEntities)) {
-                $this->client->bulk([
-                    'refresh' => $this->option('refresh'),
-                    'body' => $bulkEntities,
-                ]);
-            }
+            $entity->walkSearchableEntities($walkCallback);
         }
 
         $bar->setMessage('finished');

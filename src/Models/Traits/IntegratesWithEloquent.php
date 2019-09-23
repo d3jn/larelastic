@@ -129,9 +129,7 @@ trait IntegratesWithEloquent
         }
 
         $query->chunk(100, function ($entities) use ($callback) {
-            foreach ($entities as $entity) {
-                $callback($entity);
-            }
+            $callback($entities);
         });
     }
 
