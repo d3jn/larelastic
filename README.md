@@ -37,7 +37,7 @@ Now you can proceed with configuring this package for your needs.
 * [Elasticsearch PHP API](https://www.elastic.co/guide/en/elasticsearch/client/php-api/current/index.html) - Library for elasticsearch PHP integration
 
 ## Authors
-* **Serhii Yaniuk** - [d3jn](https://twitter.com/d3jn_)
+* **Serhii Yaniuk** - [d3jn](https://twitter.com/iamdejn)
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
